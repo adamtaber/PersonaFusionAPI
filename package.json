@@ -1,0 +1,29 @@
+{
+  "name": "personafusionapi",
+  "version": "1.0.0",
+  "description": "an api for persona 5 royal fusions",
+  "main": "./dist/index.js",
+  "scripts": {
+    "compile": "tsc",
+    "start": "npm run compile && node ./dist/app.js",
+    "dev": "nodemon ./src/app.ts"
+  },
+  "author": "",
+  "license": "GPLv3",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "pg": "^8.11.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.4.1",
+    "@types/pg": "^8.10.2",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.44.0",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  }
+}
