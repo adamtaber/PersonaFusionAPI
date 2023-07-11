@@ -5,17 +5,22 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    restart: unless-stopped
     ports: 
-      - 80:8080
+      - 3000:3000
+    depends_on:
+      - db
     volumes:
       - ./:/user/src/app
   db:
     image: postgres
-    restart: unless-stopped
     ports:
       - 5433:5432
     volumes:
-      - db:/var/lib/postgresql/data
+      - ./database-data:/var/lib/postgresql/data
+      - ./database-config/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
 volumes:
-  db:
+  database-data: {}

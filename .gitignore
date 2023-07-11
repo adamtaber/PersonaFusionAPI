@@ -1,1 +1,4 @@
 .env
+database-data/
+dist/
+node_modules/
