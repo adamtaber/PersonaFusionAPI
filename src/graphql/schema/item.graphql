@@ -1,0 +1,15 @@
+type Item {
+  itemId: Int!,
+  name: String!,
+  description: String!
+}
+
+type Query {
+  allItems: [Item!]!
+  itemById(
+    itemId: Int!
+  ): Item
+  itemByName(
+    name: String!
+  ): [Item]!
+}

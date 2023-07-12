@@ -1,0 +1,18 @@
+type Skill {
+  skillId: Int!,
+  name: String!,
+  type: String!,
+  effect: String!,
+  spCost: Int!,
+  hpCost: Int!
+}
+
+type Query {
+  allSkills: [Skill]!
+  skillById(
+    skillId: Int!
+  ): Skill
+  skillByName(
+    name: String!
+  ): [Skill]!
+}

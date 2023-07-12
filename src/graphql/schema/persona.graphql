@@ -1,0 +1,27 @@
+type PersonaSkill {
+  level: Int!
+  skill: Skill!
+}
+
+type Persona {
+  personaId: Int!,
+  name: String!,
+  baseLevel: Int!,
+  special: Boolean!,
+  inheritanceType: String!,
+  stats: [Int!]!,
+  elementals: [String!]!,
+  skills: [PersonaSkill!]!
+  normalItem: Item
+  fusionAlarmItem: Item
+}
+
+type Query {
+  allPersonas: [Persona!]!
+  personaById(
+    personaId: Int!
+  ): Persona
+  personaByName(
+    name: String!
+  ): [Persona]!
+}
