@@ -28,7 +28,7 @@ export type Persona = {
   baseLevel: Scalars['Int']['output'];
   elementals: Array<Scalars['String']['output']>;
   fusionAlarmItem?: Maybe<Item>;
-  inheritanceType: Scalars['String']['output'];
+  inheritanceType?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   normalItem?: Maybe<Item>;
   personaId: Scalars['Int']['output'];
@@ -88,11 +88,10 @@ export type QuerySkillByNameArgs = {
 
 export type Skill = {
   __typename?: 'Skill';
+  cost?: Maybe<Scalars['Int']['output']>;
   effect: Scalars['String']['output'];
-  hpCost: Scalars['Int']['output'];
   name: Scalars['String']['output'];
   skillId: Scalars['Int']['output'];
-  spCost: Scalars['Int']['output'];
   type: Scalars['String']['output'];
 };
 
@@ -201,7 +200,7 @@ export type PersonaResolvers<ContextType = any, ParentType extends ResolversPare
   baseLevel?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   elementals?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   fusionAlarmItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType>;
-  inheritanceType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  inheritanceType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   normalItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType>;
   personaId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -230,11 +229,10 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
 }>;
 
 export type SkillResolvers<ContextType = any, ParentType extends ResolversParentTypes['Skill'] = ResolversParentTypes['Skill']> = ResolversObject<{
+  cost?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   effect?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  hpCost?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   skillId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  spCost?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;

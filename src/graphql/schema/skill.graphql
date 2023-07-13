@@ -3,8 +3,7 @@ type Skill {
   name: String!,
   type: String!,
   effect: String!,
-  spCost: Int!,
-  hpCost: Int!
+  cost: Int
 }
 
 type Query {

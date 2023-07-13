@@ -8,7 +8,7 @@ type Persona {
   name: String!,
   baseLevel: Int!,
   special: Boolean!,
-  inheritanceType: String!,
+  inheritanceType: String,
   stats: [Int!]!,
   elementals: [String!]!,
   skills: [PersonaSkill!]!

@@ -10,7 +10,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./:/user/src/app
+      - ./:/usr/src/app
   db:
     image: postgres
     ports:
@@ -21,6 +21,6 @@ services:
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_DB=${DB_DATABASE}
 volumes:
   database-data: {}

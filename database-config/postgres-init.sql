@@ -11,8 +11,7 @@ CREATE TABLE skills (
   type TEXT NOT NULL,
   name TEXT NOT NULL,
   effect TEXT NOT NULL,
-  hp_cost INTEGER,
-  sp_cost INTEGER
+  cost INTEGER
 );
 
 CREATE TABLE personas (
@@ -20,7 +19,7 @@ CREATE TABLE personas (
   name TEXT NOT NULL,
   base_level INTEGER NOT NULL,
   special BOOLEAN NOT NULL,
-  inheritance_type TEXT NOT NULL,
+  inheritance_type TEXT,
   stats INTEGER [] NOT NULL,
   elementals TEXT [] NOT NULL,
   skills JSON NOT NULL,

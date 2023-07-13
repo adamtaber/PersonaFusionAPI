@@ -8,10 +8,13 @@ const personaQueries: QueryResolvers = {
   allPersonas: async () => {
     const query = `
       SELECT *
-      FROM personas
+      FROM personas p
+      JOIN skills s
     `
     const allPersonasQuery = await pool.query(query)
     const personas = humps.camelizeKeys(allPersonasQuery.rows)
+
+    console.log(personas)
 
     if(!isPersonaArray(personas)) {
       throw new GraphQLError('Query result is not an array', {
