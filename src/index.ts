@@ -45,4 +45,5 @@ const startServer = async () => {
 // }
 
 startServer()
-seedPersonas()
+// seedSkills()
+// seedPersonas()
