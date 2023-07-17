@@ -19,6 +19,7 @@ CREATE TABLE personas (
   base_level INTEGER NOT NULL,
   arcana TEXT,
   special BOOLEAN NOT NULL,
+  dlc BOOLEAN NOT NULL,
   inheritance_type TEXT,
   stats INTEGER [] NOT NULL,
   elementals TEXT [] NOT NULL,
@@ -41,4 +42,11 @@ CREATE TABLE persona_skills (
   FOREIGN KEY (persona_id) REFERENCES personas (persona_id),
   FOREIGN KEY (skill_id) REFERENCES skills (skill_id)
 );
+
+CREATE TABLE special_personas (
+  special_persona_id SERIAL NOT NULL PRIMARY KEY,
+  persona_id INT NOT NULL,
+  fusion_ids INT [] NOT NULL
+  FOREIGN KEY (persona_id) REFERENCES personas (persona_id)
+)
 

@@ -26,6 +26,7 @@ export type Item = {
 export type Persona = {
   __typename?: 'Persona';
   baseLevel: Scalars['Int']['output'];
+  dlc: Scalars['Boolean']['output'];
   elementals: Array<Scalars['String']['output']>;
   fusionAlarmItem?: Maybe<Item>;
   fusionAlarmSkillCard?: Maybe<Skill>;
@@ -61,6 +62,7 @@ export type Query = {
 
 
 export type QueryGetPersonaFusionByIdArgs = {
+  dlc: Scalars['Boolean']['input'];
   persona1Id: Scalars['Int']['input'];
   persona2Id: Scalars['Int']['input'];
 };
@@ -207,6 +209,7 @@ export type ItemResolvers<ContextType = any, ParentType extends ResolversParentT
 
 export type PersonaResolvers<ContextType = any, ParentType extends ResolversParentTypes['Persona'] = ResolversParentTypes['Persona']> = ResolversObject<{
   baseLevel?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  dlc?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   elementals?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   fusionAlarmItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType>;
   fusionAlarmSkillCard?: Resolver<Maybe<ResolversTypes['Skill']>, ParentType, ContextType>;
@@ -231,7 +234,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   allItems?: Resolver<Array<ResolversTypes['Item']>, ParentType, ContextType>;
   allPersonas?: Resolver<Array<ResolversTypes['Persona']>, ParentType, ContextType>;
   allSkills?: Resolver<Array<Maybe<ResolversTypes['Skill']>>, ParentType, ContextType>;
-  getPersonaFusionById?: Resolver<Maybe<ResolversTypes['Persona']>, ParentType, ContextType, RequireFields<QueryGetPersonaFusionByIdArgs, 'persona1Id' | 'persona2Id'>>;
+  getPersonaFusionById?: Resolver<Maybe<ResolversTypes['Persona']>, ParentType, ContextType, RequireFields<QueryGetPersonaFusionByIdArgs, 'dlc' | 'persona1Id' | 'persona2Id'>>;
   itemById?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<QueryItemByIdArgs, 'itemId'>>;
   itemByName?: Resolver<Array<Maybe<ResolversTypes['Item']>>, ParentType, ContextType, RequireFields<QueryItemByNameArgs, 'name'>>;
   personaById?: Resolver<Maybe<ResolversTypes['Persona']>, ParentType, ContextType, RequireFields<QueryPersonaByIdArgs, 'personaId'>>;

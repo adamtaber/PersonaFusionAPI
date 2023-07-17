@@ -1,6 +1,7 @@
 import { p5rItems } from "../../seed-data/p5rItems"
 import { p5rPersonas } from "../../seed-data/p5rPersonas"
 import { p5rSkills } from "../../seed-data/p5rSkills"
+import { p5rSpecials } from "../../seed-data/p5rSpecials"
 import { itemQueries } from "../graphql/resolvers/items"
 import { pool } from "./config"
 
@@ -41,10 +42,10 @@ export const seedItems = async () => {
 
 export const seedPersonas = async () => {
   const personaInputQuery = `
-    INSERT INTO personas (name, base_level, special, inheritance_type,
+    INSERT INTO personas (name, base_level, special, dlc, inheritance_type,
       stats, elementals, arcana, normal_item_id, fusion_alarm_item_id, 
       normal_skillcard_id, fusion_alarm_skillcard_id)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
     RETURNING persona_id
   `
 
@@ -73,6 +74,7 @@ export const seedPersonas = async () => {
     const name = persona[0]
     const baseLevel = persona[1].level
     const special = persona[1].special ?? false
+    const dlc = persona[1].dlc ?? false
     const inheritanceType = persona[1].inherits
     const stats = persona[1].stats
     const elementals = persona[1].elems
@@ -98,12 +100,13 @@ export const seedPersonas = async () => {
       ? fusionAlarmItemQuery.rows[0].item_id
       : null
 
-    const values = [name, baseLevel, special, inheritanceType,
+    const values = [name, baseLevel, special, dlc, inheritanceType,
       stats, elementals, arcana, itemId, fusionAlarmItemId, skillCardId,
       fusionAlarmSkillCardId]
 
     const newPersona = await pool.query(personaInputQuery, values)
     const personaId = newPersona.rows[0].persona_id
+    console.log(personaId)
     
     const skillArr = Object.entries(persona[1].skills)
 
@@ -115,6 +118,39 @@ export const seedPersonas = async () => {
       const values = [skillLvl, personaId, skillId]
       await pool.query(personaSkillInputQuery, values)
     }
+  }
+}
+
+export const seedSpecialPersonas = async () => {
+  const specialPersonaInputQuery = `
+    INSERT INTO special_personas (persona_id, fusion_ids)
+    VALUES ($1, $2)
+  `
+
+  for(let i = 0; i < p5rSpecials.length; i++) {
+    const specialPersona = p5rSpecials[i]
+
+    const personaQuery = `
+      SELECT persona_id
+      FROM personas
+      WHERE name = $1
+    `
+    const personaIdQuery = 
+      await pool.query(personaQuery, [specialPersona.result])
+    const personaId = personaIdQuery.rows[0].persona_id
+
+    const fusionPersonasQuery = `
+      SELECT persona_id
+      FROM personas p
+      WHERE p.name = ANY ($1)
+    `
+    const fusionIdQuery = 
+      await pool.query(fusionPersonasQuery, [specialPersona.sources])
+    const fusionIds = fusionIdQuery.rows
+
+    const idArr = fusionIds.map(id => id.persona_id)
+
+    await pool.query(specialPersonaInputQuery, [personaId, idArr])
   }
 }
 

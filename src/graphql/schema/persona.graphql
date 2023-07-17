@@ -8,6 +8,7 @@ type Persona {
   name: String!,
   baseLevel: Int!,
   special: Boolean!,
+  dlc: Boolean!,
   inheritanceType: String,
   stats: [Int!]!,
   elementals: [String!]!,
@@ -28,6 +29,7 @@ type Query {
   ): [Persona]!
   getPersonaFusionById(
     persona1Id: Int!,
-    persona2Id: Int!
+    persona2Id: Int!,
+    dlc: Boolean!
   ): Persona
 }
