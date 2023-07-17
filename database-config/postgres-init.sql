@@ -17,6 +17,7 @@ CREATE TABLE personas (
   persona_id SERIAL NOT NULL PRIMARY KEY,
   name TEXT NOT NULL,
   base_level INTEGER NOT NULL,
+  arcana TEXT,
   special BOOLEAN NOT NULL,
   inheritance_type TEXT,
   stats INTEGER [] NOT NULL,

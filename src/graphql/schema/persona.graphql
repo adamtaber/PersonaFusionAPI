@@ -26,4 +26,8 @@ type Query {
   personaByName(
     name: String!
   ): [Persona]!
+  getPersonaFusionById(
+    persona1Id: Int!,
+    persona2Id: Int!
+  ): Persona
 }

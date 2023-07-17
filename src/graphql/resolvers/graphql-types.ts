@@ -50,12 +50,19 @@ export type Query = {
   allItems: Array<Item>;
   allPersonas: Array<Persona>;
   allSkills: Array<Maybe<Skill>>;
+  getPersonaFusionById?: Maybe<Persona>;
   itemById?: Maybe<Item>;
   itemByName: Array<Maybe<Item>>;
   personaById?: Maybe<Persona>;
   personaByName: Array<Maybe<Persona>>;
   skillById?: Maybe<Skill>;
   skillByName: Array<Maybe<Skill>>;
+};
+
+
+export type QueryGetPersonaFusionByIdArgs = {
+  persona1Id: Scalars['Int']['input'];
+  persona2Id: Scalars['Int']['input'];
 };
 
 
@@ -224,6 +231,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   allItems?: Resolver<Array<ResolversTypes['Item']>, ParentType, ContextType>;
   allPersonas?: Resolver<Array<ResolversTypes['Persona']>, ParentType, ContextType>;
   allSkills?: Resolver<Array<Maybe<ResolversTypes['Skill']>>, ParentType, ContextType>;
+  getPersonaFusionById?: Resolver<Maybe<ResolversTypes['Persona']>, ParentType, ContextType, RequireFields<QueryGetPersonaFusionByIdArgs, 'persona1Id' | 'persona2Id'>>;
   itemById?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<QueryItemByIdArgs, 'itemId'>>;
   itemByName?: Resolver<Array<Maybe<ResolversTypes['Item']>>, ParentType, ContextType, RequireFields<QueryItemByNameArgs, 'name'>>;
   personaById?: Resolver<Maybe<ResolversTypes['Persona']>, ParentType, ContextType, RequireFields<QueryPersonaByIdArgs, 'personaId'>>;

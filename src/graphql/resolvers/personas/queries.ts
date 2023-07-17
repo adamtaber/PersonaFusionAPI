@@ -2,114 +2,16 @@ import { GraphQLError } from "graphql";
 import { pool } from "../../../db/config";
 import { QueryResolvers } from "../graphql-types";
 import humps from 'humps'
-import { isPersonaArray } from "./types";
-
-// json_build_object(
-//   'cost', s_normal.cost, 'effect', s_normal.effect, 'name',
-//   s_normal.name, 'skill_id', s_normal.skill_id, 'type', 
-//   s_normal.type
-// ) as normal_skill_card,
-// json_build_object(
-//   'cost', s_fusion.cost, 'effect', s_fusion.effect, 'name',
-//   s_fusion.name, 'skill_id', s_fusion.skill_id, 'type', 
-//   s_fusion.type
-// ) as fusion_alarm_skill_card
-
-// JOIN skills s_normal
-// ON p.normal_skillcard_id = s_normal.skill_id
-// JOIN skills s_fusion
-// ON p.fusion_alarm_skillcard_id = s_fusion.skill_id
+import { isPersona, isPersonaArray } from "./types";
+import { arcanaCombos } from "../../../db/arcanaCombos";
+import { getPersonasQuery } from "./helper";
 
 const personaQueries: QueryResolvers = {
   allPersonas: async () => {
-    // const query = `
-    //   SELECT p.*,
-    //     array_agg(
-    //       json_build_object('level', ps.level, 'skill', 
-    //         json_build_object('cost', s.cost, 'effect', s.effect,
-    //           'name', s.name, 'skill_id', s.skill_id, 'type',
-    //           s.type
-    //         )
-    //       )
-    //     ) as skills,
-    //     json_build_object(
-    //       'name', i_normal.name, 'description', i_normal.description,
-    //       'item_id', i_normal.item_id
-    //     ) as normal_item,
-    //     json_build_object(
-    //       'name', i_fusion.name, 'description', i_fusion.description,
-    //       'item_id', i_fusion.item_id
-    //     ) as fusion_alarm_item,
-    //     json_build_object(
-    //       'cost', s_normal.cost, 'effect', s_normal.effect, 'name',
-    //       s_normal.name, 'skill_id', s_normal.skill_id, 'type', 
-    //       s_normal.type
-    //     ) as normal_skill_card
-    //   FROM personas p
-    //   JOIN persona_skills ps
-    //     ON ps.persona_id = p.persona_id
-    //   JOIN skills s
-    //     ON ps.skill_id = s.skill_id
-    //   JOIN skills s_normal
-    //     ON p.normal_skillcard_id = s_normal.skill_id
-    //   JOIN items i_normal
-    //     ON p.normal_item_id = i_normal.item_id
-    //   JOIN items i_fusion
-    //     ON p.fusion_alarm_item_id = i_fusion.item_id
-    //   GROUP BY p.persona_id, i_normal.item_id, i_fusion.item_id,
-    //     s_normal.skill_id
-    //   ORDER BY p.persona_id
-    // `
-
-    const query = `
-      SELECT p.*,
-        array_agg(
-          json_build_object('level', ps.level, 'skill', 
-            json_build_object('cost', s.cost, 'effect', s.effect,
-              'name', s.name, 'skill_id', s.skill_id, 'type',
-              s.type
-            )
-          )
-        ) as skills,
-        json_build_object(
-          'cost', s_normal.cost, 'effect', s_normal.effect, 'name',
-          s_normal.name, 'skill_id', s_normal.skill_id, 'type', 
-          s_normal.type
-        ) as normal_skill_card, 
-        json_build_object(
-          'cost', s_fusion.cost, 'effect', s_fusion.effect, 'name',
-          s_fusion.name, 'skill_id', s_fusion.skill_id, 'type', 
-          s_fusion.type
-        ) as fusion_alarm_skill_card, 
-        json_build_object(
-          'name', i_normal.name, 'description', i_normal.description,
-          'item_id', i_normal.item_id
-        ) as normal_item,
-        json_build_object(
-          'name', i_fusion.name, 'description', i_fusion.description,
-          'item_id', i_fusion.item_id
-        ) as fusion_alarm_item
-      FROM personas p
-      LEFT JOIN persona_skills ps
-        ON ps.persona_id = p.persona_id
-      LEFT JOIN items i_normal
-        ON p.normal_item_id = i_normal.item_id
-      LEFT JOIN items i_fusion
-        ON p.fusion_alarm_item_id = i_fusion.item_id
-      LEFT JOIN skills s
-        ON ps.skill_id = s.skill_id
-      LEFT JOIN skills s_normal
-        ON p.normal_skillcard_id = s_normal.skill_id
-      LEFT JOIN skills s_fusion
-        ON p.fusion_alarm_skillcard_id = s_fusion.skill_id
-      GROUP BY p.persona_id, s_normal.skill_id, i_normal.item_id,
-        s_fusion.skill_id, i_fusion.item_id
-      ORDER BY p.persona_id
-    `
+    const orderByQuery = 'ORDER BY p.persona_id'
+    const query = getPersonasQuery('', orderByQuery, '')
     const allPersonasQuery = await pool.query(query)
     const personas = humps.camelizeKeys(allPersonasQuery.rows)
-
-    console.log(personas)
 
     if(Array.isArray(personas)) console.log(personas[0].skills2, personas.length)
 
@@ -122,7 +24,115 @@ const personaQueries: QueryResolvers = {
     }
 
     return personas
+  },
+  personaById: async (_root, { personaId }) => {
+    if (!personaId) {
+      throw new GraphQLError('Missing parameters', {
+        extensions: {
+          code: 'INVALID_TYPE'
+        }
+      })
+    }
+
+    const whereQuery = 'WHERE p.persona_id = $1'
+    const query = getPersonasQuery(whereQuery, '', '')
+    
+    const personaByIdQuery = await pool.query(query, [personaId])
+    const persona = humps.camelizeKeys(personaByIdQuery.rows[0])
+
+    if(!isPersona(persona)) {
+      throw new GraphQLError('Result is not of type Persona', {
+        extensions: {
+          code: 'INVALID_TYPE'
+        }
+      })
+    }
+
+    return persona
+  },
+  personaByName: async (_root, { name }) => {
+    if (!name) {
+      throw new GraphQLError('Missing parameters', {
+        extensions: {
+          code: 'INVALID_TYPE'
+        }
+      })
+    }
+
+    const whereQuery = 'WHERE p.name LIKE $1'
+    const query = getPersonasQuery(whereQuery, '', '')
+
+    const personaByNameQuery = await pool.query(query, [`%${name}%`])
+    const personas = humps.camelizeKeys(personaByNameQuery.rows)
+
+    if (!isPersonaArray(personas)) {
+      throw new GraphQLError('Not of type Persona', {
+        extensions: {
+          code: 'INVALID_TYPE'
+        }
+      })
+    }
+
+    return personas
+  },
+  getPersonaFusionById: async (_root, { persona1Id, persona2Id }) => {
+    if (!persona1Id || !persona2Id) {
+      throw new GraphQLError('Missing parameters', {
+        extensions: {
+          code: 'INVALID_TYPE'
+        }
+      })
+    }
+
+    const personaQuery = `
+      SELECT base_level, arcana
+      FROM personas
+      WHERE persona_id = $1
+    `
+
+    const persona1Query = await pool.query(personaQuery, [persona1Id])
+    const persona2Query = await pool.query(personaQuery, [persona2Id])
+    const persona1 = humps.camelizeKeys(persona1Query.rows[0])
+    const persona2 = humps.camelizeKeys(persona2Query.rows[0])
+
+    const fusionLevel = 
+      Math.floor((persona1.baseLevel + persona2.baseLevel) / 2) + 1
+
+    const arcanaCombo = arcanaCombos.find((combo) => {
+      return combo.source.includes(persona1.arcana) 
+      && combo.source.includes(persona2.arcana)
+    })
+
+    const fusionArcana = arcanaCombo ? arcanaCombo.result : ''
+
+    if (!fusionLevel || !fusionArcana) {
+      throw new GraphQLError('Invalid level or arcana', {
+        extensions: {
+          code: 'INVALID_TYPE'
+        }
+      })
+    }
+
+    const whereQuery = 'WHERE p.arcana = $1 AND p.base_level >= $2'
+    const orderByQuery = 'ORDER BY p.base_level'
+    const limit = 'LIMIT 1'
+    const fusionQuery = getPersonasQuery(whereQuery, orderByQuery, limit)
+
+    const getFusionQuery = 
+      await pool.query(fusionQuery, [fusionArcana, fusionLevel])
+    const persona = humps.camelizeKeys(getFusionQuery.rows[0])
+
+    if (!isPersona(persona)) {
+      throw new GraphQLError('Not of type Persona', {
+        extensions: {
+          code: 'INVALID_TYPE'
+        }
+      })
+    }
+
+    return persona
   }
 }
 
 export default personaQueries
+
