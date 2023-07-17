@@ -1,7 +1,6 @@
 CREATE TABLE items (
   item_id SERIAL NOT NULL PRIMARY KEY,
-  fusion_type TEXT NOT NULL,
-  item_type TEXT NOT NULL,
+  type TEXT NOT NULL,
   name TEXT NOT NULL,
   description TEXT NOT NULL
 );
@@ -25,8 +24,12 @@ CREATE TABLE personas (
   skills JSON,
   normal_item_id INT,
   fusion_alarm_item_id INT,
+  normal_skillcard_id INT,
+  fusion_alarm_skillcard_id INT,
   FOREIGN KEY (normal_item_id) REFERENCES items (item_id),
-  FOREIGN KEY (fusion_alarm_item_id) REFERENCES items (item_id)
+  FOREIGN KEY (fusion_alarm_item_id) REFERENCES items (item_id),
+  FOREIGN KEY (normal_skillcard_id) REFERENCES skills (skill_id),
+  FOREIGN KEY (fusion_alarm_skillcard_id) REFERENCES skills (skill_id)
 );
 
 CREATE TABLE persona_skills (

@@ -1,5 +1,5 @@
 type PersonaSkill {
-  level: Int!
+  level: Int!,
   skill: Skill!
 }
 
@@ -11,9 +11,11 @@ type Persona {
   inheritanceType: String,
   stats: [Int!]!,
   elementals: [String!]!,
-  skills: [PersonaSkill!]!
-  normalItem: Item
-  fusionAlarmItem: Item
+  skills: [PersonaSkill!]!,
+  normalItem: Item,
+  fusionAlarmItem: Item,
+  normalSkillCard: Skill,
+  fusionAlarmSkillCard: Skill
 }
 
 type Query {

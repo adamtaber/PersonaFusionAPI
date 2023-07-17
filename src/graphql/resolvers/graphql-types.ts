@@ -28,9 +28,11 @@ export type Persona = {
   baseLevel: Scalars['Int']['output'];
   elementals: Array<Scalars['String']['output']>;
   fusionAlarmItem?: Maybe<Item>;
+  fusionAlarmSkillCard?: Maybe<Skill>;
   inheritanceType?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   normalItem?: Maybe<Item>;
+  normalSkillCard?: Maybe<Skill>;
   personaId: Scalars['Int']['output'];
   skills: Array<PersonaSkill>;
   special: Scalars['Boolean']['output'];
@@ -200,9 +202,11 @@ export type PersonaResolvers<ContextType = any, ParentType extends ResolversPare
   baseLevel?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   elementals?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   fusionAlarmItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType>;
+  fusionAlarmSkillCard?: Resolver<Maybe<ResolversTypes['Skill']>, ParentType, ContextType>;
   inheritanceType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   normalItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType>;
+  normalSkillCard?: Resolver<Maybe<ResolversTypes['Skill']>, ParentType, ContextType>;
   personaId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   skills?: Resolver<Array<ResolversTypes['PersonaSkill']>, ParentType, ContextType>;
   special?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
