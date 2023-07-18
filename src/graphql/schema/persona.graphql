@@ -8,6 +8,11 @@ type TreasureMod {
   modifier: Int!
 }
 
+type PersonaRecipe {
+  persona1: Persona!
+  persona2: Persona!
+}
+
 type Persona {
   personaId: Int!,
   name: String!,
@@ -40,4 +45,13 @@ type Query {
     persona2Id: Int!,
     dlc: Boolean!
   ): Persona
+  getPersonaFusionByName(
+    persona1Name: String!,
+    persona2Name: String!,
+    dlc: Boolean!
+  ): Persona
+  getPersonaRecipesById(
+    personaId: Int!,
+    dlc: Boolean!
+  ): [PersonaRecipe]!
 }

@@ -43,6 +43,12 @@ export type Persona = {
   treasureMods?: Maybe<Array<Maybe<TreasureMod>>>;
 };
 
+export type PersonaRecipe = {
+  __typename?: 'PersonaRecipe';
+  persona1: Persona;
+  persona2: Persona;
+};
+
 export type PersonaSkill = {
   __typename?: 'PersonaSkill';
   level: Scalars['Int']['output'];
@@ -55,6 +61,8 @@ export type Query = {
   allPersonas: Array<Persona>;
   allSkills: Array<Maybe<Skill>>;
   getPersonaFusionById?: Maybe<Persona>;
+  getPersonaFusionByName?: Maybe<Persona>;
+  getPersonaRecipesById: Array<Maybe<PersonaRecipe>>;
   itemById?: Maybe<Item>;
   itemByName: Array<Maybe<Item>>;
   personaById?: Maybe<Persona>;
@@ -68,6 +76,19 @@ export type QueryGetPersonaFusionByIdArgs = {
   dlc: Scalars['Boolean']['input'];
   persona1Id: Scalars['Int']['input'];
   persona2Id: Scalars['Int']['input'];
+};
+
+
+export type QueryGetPersonaFusionByNameArgs = {
+  dlc: Scalars['Boolean']['input'];
+  persona1Name: Scalars['String']['input'];
+  persona2Name: Scalars['String']['input'];
+};
+
+
+export type QueryGetPersonaRecipesByIdArgs = {
+  dlc: Scalars['Boolean']['input'];
+  personaId: Scalars['Int']['input'];
 };
 
 
@@ -191,6 +212,7 @@ export type ResolversTypes = ResolversObject<{
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Item: ResolverTypeWrapper<Item>;
   Persona: ResolverTypeWrapper<Persona>;
+  PersonaRecipe: ResolverTypeWrapper<PersonaRecipe>;
   PersonaSkill: ResolverTypeWrapper<PersonaSkill>;
   Query: ResolverTypeWrapper<{}>;
   Skill: ResolverTypeWrapper<Skill>;
@@ -204,6 +226,7 @@ export type ResolversParentTypes = ResolversObject<{
   Int: Scalars['Int']['output'];
   Item: Item;
   Persona: Persona;
+  PersonaRecipe: PersonaRecipe;
   PersonaSkill: PersonaSkill;
   Query: {};
   Skill: Skill;
@@ -238,6 +261,12 @@ export type PersonaResolvers<ContextType = any, ParentType extends ResolversPare
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PersonaRecipeResolvers<ContextType = any, ParentType extends ResolversParentTypes['PersonaRecipe'] = ResolversParentTypes['PersonaRecipe']> = ResolversObject<{
+  persona1?: Resolver<ResolversTypes['Persona'], ParentType, ContextType>;
+  persona2?: Resolver<ResolversTypes['Persona'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PersonaSkillResolvers<ContextType = any, ParentType extends ResolversParentTypes['PersonaSkill'] = ResolversParentTypes['PersonaSkill']> = ResolversObject<{
   level?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   skill?: Resolver<ResolversTypes['Skill'], ParentType, ContextType>;
@@ -249,6 +278,8 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   allPersonas?: Resolver<Array<ResolversTypes['Persona']>, ParentType, ContextType>;
   allSkills?: Resolver<Array<Maybe<ResolversTypes['Skill']>>, ParentType, ContextType>;
   getPersonaFusionById?: Resolver<Maybe<ResolversTypes['Persona']>, ParentType, ContextType, RequireFields<QueryGetPersonaFusionByIdArgs, 'dlc' | 'persona1Id' | 'persona2Id'>>;
+  getPersonaFusionByName?: Resolver<Maybe<ResolversTypes['Persona']>, ParentType, ContextType, RequireFields<QueryGetPersonaFusionByNameArgs, 'dlc' | 'persona1Name' | 'persona2Name'>>;
+  getPersonaRecipesById?: Resolver<Array<Maybe<ResolversTypes['PersonaRecipe']>>, ParentType, ContextType, RequireFields<QueryGetPersonaRecipesByIdArgs, 'dlc' | 'personaId'>>;
   itemById?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<QueryItemByIdArgs, 'itemId'>>;
   itemByName?: Resolver<Array<Maybe<ResolversTypes['Item']>>, ParentType, ContextType, RequireFields<QueryItemByNameArgs, 'name'>>;
   personaById?: Resolver<Maybe<ResolversTypes['Persona']>, ParentType, ContextType, RequireFields<QueryPersonaByIdArgs, 'personaId'>>;
@@ -275,6 +306,7 @@ export type TreasureModResolvers<ContextType = any, ParentType extends Resolvers
 export type Resolvers<ContextType = any> = ResolversObject<{
   Item?: ItemResolvers<ContextType>;
   Persona?: PersonaResolvers<ContextType>;
+  PersonaRecipe?: PersonaRecipeResolvers<ContextType>;
   PersonaSkill?: PersonaSkillResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Skill?: SkillResolvers<ContextType>;

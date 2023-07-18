@@ -1,3 +1,9 @@
+import { pool } from "../../../db/config"
+import humps from 'humps'
+import { isPersona } from "./types"
+import { GraphQLError } from "graphql"
+import { arcanaCombos } from "../../../db/arcanaCombos"
+
 export const getPersonasQuery = (where: string, order: string, limit: string) => {
   return `
     SELECT p.*,
@@ -46,4 +52,185 @@ export const getPersonasQuery = (where: string, order: string, limit: string) =>
     ${order}
     ${limit}
   `
+}
+
+export const checkForSpecial = async (persona1Id: number, persona2Id: number) => {
+  const specialPersonaQuery = `
+    SELECT persona_id
+    FROM special_personas
+    WHERE array_length(fusion_ids, 1) = 2
+      AND $1 = ANY(fusion_ids)
+      AND $2 = ANY(fusion_ids)
+  `
+  const specialPersonaIdQuery = 
+    await pool.query(specialPersonaQuery, [persona1Id, persona2Id])
+  const specialPersonaId = specialPersonaIdQuery.rows[0]?.persona_id
+
+  if(specialPersonaId) {
+    const whereQuery = 'WHERE p.persona_id = $1'
+    const personaQuery = getPersonasQuery(whereQuery, '', '')
+    const personaFusionQuery = 
+      await pool.query(personaQuery, [specialPersonaId])
+    const persona = humps.camelizeKeys(personaFusionQuery.rows[0])
+
+    if(!isPersona(persona)) {
+      throw new GraphQLError('Not of type Persona', {
+        extensions: {
+          code: 'INVALID_TYPE'
+        }
+      })
+    }
+    return persona
+  }
+}
+
+interface MinPersona {
+  personaId: number,
+  name: string,
+  baseLevel: number,
+  arcana: string,
+  treasure: boolean
+}
+
+const isMinPersona = (input: any): input is MinPersona => {
+  const minPersona = (input.personaId !== undefined) &&
+                     (input.name !== undefined) &&
+                     (input.baseLevel !== undefined) &&
+                     (input.arcana !== undefined) &&
+                     (input.treasure !== undefined)
+  return minPersona
+}
+
+export const getMinPersona = async (personaId: number) => {
+  const personaQuery = `
+    SELECT base_level, arcana, treasure, name, persona_id
+    FROM personas
+    WHERE persona_id = $1
+  `
+
+  const getPersona = await pool.query(personaQuery, [personaId])
+  const persona = humps.camelizeKeys(getPersona.rows[0])
+
+  if (!isMinPersona(persona)) {
+    throw new GraphQLError('Not of type MinPersona', {
+      extensions: {
+        code: 'INVALID_TYPE'
+      }
+    })
+  }
+
+  return persona
+}
+
+export const checkForTreasure = 
+  async (persona1: any, persona2: any, dlc: boolean) => {
+    if (!isMinPersona(persona1) || !isMinPersona(persona2)) {
+      throw new GraphQLError('Not of type MinPersona', {
+        extensions: {
+          code: 'INVALID_TYPE'
+        }
+      })
+    }
+
+    if ((persona1.treasure || persona2.treasure) 
+      && !(persona1.treasure && persona2.treasure)) {
+        const treasureId = persona1.treasure 
+          ? persona1.personaId 
+          : persona2.personaId
+        
+        const baseLevel = persona1.treasure
+          ? persona2.baseLevel
+          : persona1.baseLevel
+        
+        const arcana = persona1.treasure
+          ? persona2.arcana
+          : persona1.arcana
+
+        const modifierQuery = `
+          SELECT ${arcana.toLowerCase()}_mod
+          FROM treasure_modifiers
+          WHERE persona_id = ${treasureId}
+        `
+
+        const getModifier = await pool.query(modifierQuery)
+        const modifier = getModifier.rows[0][`${arcana.toLowerCase()}_mod`]
+
+        const newLevel = baseLevel + modifier
+
+        const whereQuery = `
+          WHERE p.arcana = $1
+            AND p.base_level >= $2
+            AND (dlc = $3 OR dlc = false)
+            AND p.special = false
+        `
+        const orderByQuery = `
+          ORDER BY p.base_level
+        `
+        const limit = 'LIMIT 1'
+
+        const fusionQuery = getPersonasQuery(whereQuery, orderByQuery, limit)
+        const getFusionQuery = 
+          await pool.query(fusionQuery, [arcana, newLevel, dlc])
+        const persona = humps.camelizeKeys(getFusionQuery.rows[0])
+        
+        if (!persona) return null
+
+        if (!isPersona(persona)) {
+          throw new GraphQLError('Not of type Persona', {
+            extensions: {
+              code: 'INVALID_TYPE'
+            }
+          })
+        }
+
+        return persona
+    }
+}
+
+export const checkForStandardFusion = 
+  async (persona1: MinPersona, persona2: MinPersona, dlc: boolean) => {
+    const fusionLevel = 
+      Math.floor((persona1.baseLevel + persona2.baseLevel) / 2) + 1
+
+    const fusionArcana = arcanaCombos.find((combo) => {
+      return combo.source.includes(persona1.arcana) 
+      && combo.source.includes(persona2.arcana)
+    })?.result
+
+    if (!fusionLevel || !fusionArcana) {
+      throw new GraphQLError('Invalid level or arcana', {
+        extensions: {
+          code: 'INVALID_TYPE'
+        }
+      })
+    }
+
+    const sameArcana = persona1.arcana === persona2.arcana
+
+    const whereQuery = `
+      WHERE p.arcana = $1 
+        AND p.base_level ${ sameArcana ? '<= $2' : '>= $2' }
+        AND (dlc = $3 OR dlc = false)
+        AND p.special = false
+    `
+    const orderByQuery = `
+      ORDER BY p.base_level 
+      ${sameArcana ? 'DESC' : ''}
+    `
+    const limit = 'LIMIT 1'
+    const fusionQuery = getPersonasQuery(whereQuery, orderByQuery, limit)
+
+    const getFusionQuery = 
+      await pool.query(fusionQuery, [fusionArcana, fusionLevel, dlc])
+    const persona = humps.camelizeKeys(getFusionQuery.rows[0])
+
+    if (!isPersona(persona)) {
+      throw new GraphQLError('Not of type Persona', {
+        extensions: {
+          code: 'INVALID_TYPE'
+        }
+      })
+    }
+
+    return persona
 }
