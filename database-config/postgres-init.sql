@@ -20,6 +20,7 @@ CREATE TABLE personas (
   arcana TEXT,
   special BOOLEAN NOT NULL,
   dlc BOOLEAN NOT NULL,
+  treasure BOOLEAN NOT NULL,
   inheritance_type TEXT,
   stats INTEGER [] NOT NULL,
   elementals TEXT [] NOT NULL,
@@ -46,7 +47,37 @@ CREATE TABLE persona_skills (
 CREATE TABLE special_personas (
   special_persona_id SERIAL NOT NULL PRIMARY KEY,
   persona_id INT NOT NULL,
-  fusion_ids INT [] NOT NULL
+  fusion_ids INT [] NOT NULL,
   FOREIGN KEY (persona_id) REFERENCES personas (persona_id)
-)
+);
+
+CREATE TABLE treasure_modifiers (
+  treasure_modifier_id SERIAL NOT NULL PRIMARY KEY,
+  persona_id INT NOT NULL,
+  fool_mod INT NOT NULL,
+  magician_mod INT NOT NULL,
+  priestess_mod INT NOT NULL,
+  empress_mod INT NOT NULL,
+  emperor_mod INT NOT NULL,
+  hierophant_mod INT NOT NULL,
+  lovers_mod INT NOT NULL,
+  chariot_mod INT NOT NULL,
+  justice_mod INT NOT NULL,
+  hermit_mod INT NOT NULL,
+  fortune_mod INT NOT NULL,
+  strength_mod INT NOT NULL,
+  hanged_mod INT NOT NULL,
+  death_mod INT NOT NULL,
+  temperance_mod INT NOT NULL,
+  devil_mod INT NOT NULL,
+  tower_mod INT NOT NULL,
+  star_mod INT NOT NULL,
+  moon_mod INT NOT NULL,
+  sun_mod INT NOT NULL,
+  judgement_mod INT NOT NULL,
+  faith_mod INT NOT NULL,
+  councillor_mod INT NOT NULL,
+  world_mod INT NOT NULL,
+  FOREIGN KEY (persona_id) REFERENCES personas (persona_id)
+);
 

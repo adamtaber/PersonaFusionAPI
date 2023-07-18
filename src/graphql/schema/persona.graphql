@@ -3,12 +3,20 @@ type PersonaSkill {
   skill: Skill!
 }
 
+type TreasureMod {
+  arcana: String!,
+  modifier: Int!
+}
+
 type Persona {
   personaId: Int!,
   name: String!,
   baseLevel: Int!,
+  arcana: String!,
   special: Boolean!,
   dlc: Boolean!,
+  treasure: Boolean!,
+  treasureMods: [TreasureMod]
   inheritanceType: String,
   stats: [Int!]!,
   elementals: [String!]!,

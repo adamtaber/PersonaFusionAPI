@@ -25,6 +25,7 @@ export type Item = {
 
 export type Persona = {
   __typename?: 'Persona';
+  arcana: Scalars['String']['output'];
   baseLevel: Scalars['Int']['output'];
   dlc: Scalars['Boolean']['output'];
   elementals: Array<Scalars['String']['output']>;
@@ -38,6 +39,8 @@ export type Persona = {
   skills: Array<PersonaSkill>;
   special: Scalars['Boolean']['output'];
   stats: Array<Scalars['Int']['output']>;
+  treasure: Scalars['Boolean']['output'];
+  treasureMods?: Maybe<Array<Maybe<TreasureMod>>>;
 };
 
 export type PersonaSkill = {
@@ -104,6 +107,12 @@ export type Skill = {
   name: Scalars['String']['output'];
   skillId: Scalars['Int']['output'];
   type: Scalars['String']['output'];
+};
+
+export type TreasureMod = {
+  __typename?: 'TreasureMod';
+  arcana: Scalars['String']['output'];
+  modifier: Scalars['Int']['output'];
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -186,6 +195,7 @@ export type ResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>;
   Skill: ResolverTypeWrapper<Skill>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  TreasureMod: ResolverTypeWrapper<TreasureMod>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -198,6 +208,7 @@ export type ResolversParentTypes = ResolversObject<{
   Query: {};
   Skill: Skill;
   String: Scalars['String']['output'];
+  TreasureMod: TreasureMod;
 }>;
 
 export type ItemResolvers<ContextType = any, ParentType extends ResolversParentTypes['Item'] = ResolversParentTypes['Item']> = ResolversObject<{
@@ -208,6 +219,7 @@ export type ItemResolvers<ContextType = any, ParentType extends ResolversParentT
 }>;
 
 export type PersonaResolvers<ContextType = any, ParentType extends ResolversParentTypes['Persona'] = ResolversParentTypes['Persona']> = ResolversObject<{
+  arcana?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   baseLevel?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   dlc?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   elementals?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
@@ -221,6 +233,8 @@ export type PersonaResolvers<ContextType = any, ParentType extends ResolversPare
   skills?: Resolver<Array<ResolversTypes['PersonaSkill']>, ParentType, ContextType>;
   special?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   stats?: Resolver<Array<ResolversTypes['Int']>, ParentType, ContextType>;
+  treasure?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  treasureMods?: Resolver<Maybe<Array<Maybe<ResolversTypes['TreasureMod']>>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -252,11 +266,18 @@ export type SkillResolvers<ContextType = any, ParentType extends ResolversParent
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type TreasureModResolvers<ContextType = any, ParentType extends ResolversParentTypes['TreasureMod'] = ResolversParentTypes['TreasureMod']> = ResolversObject<{
+  arcana?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  modifier?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type Resolvers<ContextType = any> = ResolversObject<{
   Item?: ItemResolvers<ContextType>;
   Persona?: PersonaResolvers<ContextType>;
   PersonaSkill?: PersonaSkillResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Skill?: SkillResolvers<ContextType>;
+  TreasureMod?: TreasureModResolvers<ContextType>;
 }>;
 

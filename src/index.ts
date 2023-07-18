@@ -9,7 +9,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema'
 import typeDefs from './graphql/schema'
 import resolvers from './graphql/resolvers'
 import * as dotenv from 'dotenv'
-import { seedItems, seedPersonas, seedSkills, seedSpecialPersonas } from './db/seed';
+import { seedItems, seedPersonas, seedSkills, seedSpecialPersonas, seedTreasureMods } from './db/seed';
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
 
 
@@ -49,3 +49,14 @@ startServer()
 // seedItems()
 // seedPersonas()
 // seedSpecialPersonas()
+// seedTreasureMods()
+
+// const seedData = async () => {
+//   await seedSkills()
+//   await seedItems()
+//   await seedPersonas()
+//   await seedSpecialPersonas()
+//   await seedTreasureMods()
+// }
+
+// seedData()

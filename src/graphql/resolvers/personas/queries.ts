@@ -92,6 +92,8 @@ const personaQueries: QueryResolvers = {
       })
     }
 
+    //SPECIAL PERSONAS
+
     const specialPersonaQuery = `
       SELECT persona_id
       FROM special_personas
@@ -102,7 +104,7 @@ const personaQueries: QueryResolvers = {
 
     const specialPersonaIdQuery = 
       await pool.query(specialPersonaQuery, [persona1Id, persona2Id])
-    const specialPersonaId = specialPersonaIdQuery.rows[0].persona_id
+    const specialPersonaId = specialPersonaIdQuery.rows[0]?.persona_id
 
     if(specialPersonaId) {
       const whereQuery = 'WHERE p.persona_id = $1'
@@ -122,7 +124,7 @@ const personaQueries: QueryResolvers = {
     }
 
     const personaQuery = `
-      SELECT base_level, arcana
+      SELECT base_level, arcana, treasure, name, persona_id
       FROM personas
       WHERE persona_id = $1
     `
@@ -131,6 +133,62 @@ const personaQueries: QueryResolvers = {
     const persona2Query = await pool.query(personaQuery, [persona2Id])
     const persona1 = humps.camelizeKeys(persona1Query.rows[0])
     const persona2 = humps.camelizeKeys(persona2Query.rows[0])
+
+    //TREASURE FUSION
+    if (persona1.treasure || persona2.treasure) {
+      const treasureId = persona1.treasure 
+        ? persona1.personaId 
+        : persona2.personaId
+      
+      const baseLevel = persona1.treasure
+        ? persona2.baseLevel
+        : persona1.baseLevel
+      
+      const arcana = persona1.treasure
+        ? persona2.arcana
+        : persona1.arcana
+
+      const modifierQuery = `
+        SELECT ${arcana.toLowerCase()}_mod
+        FROM treasure_modifiers
+        WHERE persona_id = ${treasureId}
+      `
+
+      const getModifier = await pool.query(modifierQuery)
+      const modifier = getModifier.rows[0][`${arcana.toLowerCase()}_mod`]
+
+      const newLevel = baseLevel + modifier
+
+      const whereQuery = `
+        WHERE p.arcana = $1
+          AND p.base_level >= $2
+          AND (dlc = $3 OR dlc = false)
+          AND p.special = false
+      `
+
+      const orderByQuery = `
+        ORDER BY p.base_level
+      `
+
+      const limit = 'LIMIT 1'
+
+      const fusionQuery = getPersonasQuery(whereQuery, orderByQuery, limit)
+      const getFusionQuery = 
+        await pool.query(fusionQuery, [arcana, newLevel, dlc])
+      const persona = humps.camelizeKeys(getFusionQuery.rows[0])
+
+      if (!isPersona(persona)) {
+        throw new GraphQLError('Not of type Persona', {
+          extensions: {
+            code: 'INVALID_TYPE'
+          }
+        })
+      }
+
+      return persona
+    }
+
+    //STANDARD FUSION
 
     const fusionLevel = 
       Math.floor((persona1.baseLevel + persona2.baseLevel) / 2) + 1

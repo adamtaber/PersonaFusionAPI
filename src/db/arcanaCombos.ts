@@ -272,4 +272,4 @@ export const arcanaCombos = [
   {'source': ['Faith',      'Councillor'  ], 'result': 'Priestess'   },
   {'source': ['Councillor', 'Councillor'  ], 'result': 'Councillor'  },
   {'source': ['World',      'World'       ], 'result': 'World'       },
-];
+]
