@@ -2,7 +2,7 @@ import { GraphQLError } from "graphql";
 import { pool } from "../../../db/config";
 import { QueryResolvers } from "../graphql-types";
 import humps from 'humps'
-import { isPersona, isPersonaArray } from "./types";
+import { isPersona, isPersonaArray, isPersonaRecipeArray } from "./types";
 import { arcanaCombos } from "../../../db/arcanaCombos";
 import { checkForSpecial, checkForStandardFusion, checkForTreasure, getDiffArcanaRecipes, getMinPersona, getPersonasQuery, getSameArcanaRecipes, getTreasureRecipes } from "./helper";
 
@@ -98,8 +98,12 @@ const personaQueries: QueryResolvers = {
     const persona1 = await getMinPersona(persona1Id)
     const persona2 = await getMinPersona(persona2Id)
 
-    const treasureFusion = await checkForTreasure(persona1, persona2, dlc)
-    if (treasureFusion) return treasureFusion
+    if (persona1.treasure || 
+      persona2.treasure && !(persona1.treasure && persona2.treasure)) {
+        const treasureFusion = await checkForTreasure(persona1, persona2, dlc)
+        if (treasureFusion) return treasureFusion
+        else throw new GraphQLError('error')
+      }
 
     const standardFusion = await checkForStandardFusion(persona1, persona2, dlc)
     if (standardFusion) return standardFusion
@@ -161,7 +165,24 @@ const personaQueries: QueryResolvers = {
 
     console.log(personaPairs)
 
-    throw new GraphQLError('TEST')
+    if(!isPersonaRecipeArray(personaPairs)) {
+      throw new GraphQLError('Result is not of type PersonaRecipeArray', {
+        extensions: {
+          code: 'INVALID_TYPE'
+        }
+      })    
+    }
+
+    const sortedPairs = personaPairs.sort((a, b) => {
+      return (
+        Math.max(a.persona1.baseLevel, a.persona2.baseLevel) -
+        Math.max(b.persona1.baseLevel, b.persona2.baseLevel)
+      )
+    })
+
+    console.log(sortedPairs.length)
+
+    return sortedPairs
   }
 }
 
