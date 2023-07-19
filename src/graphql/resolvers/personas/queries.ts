@@ -4,7 +4,7 @@ import { QueryResolvers } from "../graphql-types";
 import humps from 'humps'
 import { isPersona, isPersonaArray } from "./types";
 import { arcanaCombos } from "../../../db/arcanaCombos";
-import { checkForSpecial, checkForStandardFusion, checkForTreasure, getMinPersona, getPersonasQuery } from "./helper";
+import { checkForSpecial, checkForStandardFusion, checkForTreasure, getDiffArcanaRecipes, getMinPersona, getPersonasQuery, getSameArcanaRecipes, getTreasureRecipes } from "./helper";
 
 const personaQueries: QueryResolvers = {
   allPersonas: async () => {
@@ -137,79 +137,29 @@ const personaQueries: QueryResolvers = {
       })
     }
 
-    const personaQuery = `
-      SELECT arcana, special, base_level
-      FROM personas
-      WHERE persona_id = $1
-    `
-    const getPersona = await pool.query(personaQuery, [personaId])
-    const targetPersona = getPersona.rows[0]
-
+    const targetPersona = await getMinPersona(personaId)
     const arcanaRecipes = arcanaCombos.filter((combo) => {
-      return combo.result === targetPersona.arcana
+      return (
+        combo.result === targetPersona.arcana &&
+        combo.source[0] !== combo.source[1]
+      )
     })
+    let personaPairs: Array<any> = []
 
-    const personaPairs = []
+    const diffArcanaRecipes = 
+      await getDiffArcanaRecipes(arcanaRecipes, personaId, 
+        targetPersona.arcana, dlc)
+    personaPairs = [...personaPairs, ...diffArcanaRecipes]
 
-    for (let i = 0; i < arcanaRecipes.length; i++) {
-      const personasQuery = `
-        SELECT base_level, persona_id, name, arcana, treasure
-        FROM personas
-        WHERE arcana = $1
-          AND special = false
-      `
-      const getPersonasA = await pool.query(personasQuery, [
-        arcanaRecipes[i].source[0]
-      ])
+    const sameArcanaRecipes = 
+      await getSameArcanaRecipes(personaId, targetPersona.arcana, dlc)
+    personaPairs = [...personaPairs, ...sameArcanaRecipes]
 
-      const getPersonasB = await pool.query(personasQuery, [
-        arcanaRecipes[i].source[1]
-      ])
+    const treasureRecipes = 
+      await getTreasureRecipes(targetPersona.arcana, personaId, dlc)
+    personaPairs = [...personaPairs, ...treasureRecipes]
 
-      const personasA = humps.camelizeKeys(getPersonasA.rows)
-      const personasB = humps.camelizeKeys(getPersonasB.rows)
-
-      if(!Array.isArray(personasA) || !Array.isArray(personasB)) {
-        throw new GraphQLError('Not array')
-      } 
-
-      for (let j = 0; j < personasA.length; j++) {
-        for (let k = 0; k < personasB.length; k++) {
-          const fusionLevel = 
-            Math.floor((personasA[j].baseLevel + personasB[k].baseLevel) / 2) + 1
-          
-          const sameArcana = personasA[j].arcana === personasB[k].arcana
-
-          if ((personasA[j].treasure || personasB[k].treasure) && 
-            !(personasA[j].treasure && personasB[k].treasure)) {
-              continue
-            }
-
-          const standardFusionQuery = `
-            SELECT persona_id
-            FROM personas
-            WHERE arcana = $1 
-              AND base_level ${ sameArcana ? '<= $2' : '>= $2' }
-              AND (dlc = $3 OR dlc = false)
-              AND special = false
-            ORDER BY base_level ${sameArcana ? 'DESC' : ''}
-            LIMIT 1
-          `
-
-          const getFusionQuery = 
-            await pool.query(standardFusionQuery, [targetPersona.arcana, fusionLevel, dlc])
-          const fusedPersonaId = getFusionQuery.rows[0]?.persona_id
-
-          if (fusedPersonaId === personaId) {
-            personaPairs.push({
-              persona1: personasA[j].personaId,
-              persona2: personasB[k].personaId
-            })
-          }
-        }
-      }
-    }
-    console.log(personaPairs.length)
+    console.log(personaPairs)
 
     throw new GraphQLError('TEST')
   }

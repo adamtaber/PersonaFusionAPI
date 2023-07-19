@@ -3,6 +3,7 @@ import humps from 'humps'
 import { isPersona } from "./types"
 import { GraphQLError } from "graphql"
 import { arcanaCombos } from "../../../db/arcanaCombos"
+import { treasureCombos, treasureDemons } from "../../../db/treasureCombos"
 
 export const getPersonasQuery = (where: string, order: string, limit: string) => {
   return `
@@ -192,10 +193,14 @@ export const checkForStandardFusion =
     const fusionLevel = 
       Math.floor((persona1.baseLevel + persona2.baseLevel) / 2) + 1
 
-    const fusionArcana = arcanaCombos.find((combo) => {
+    const sameArcana = persona1.arcana === persona2.arcana
+
+    const findArcana = arcanaCombos.find((combo) => {
       return combo.source.includes(persona1.arcana) 
       && combo.source.includes(persona2.arcana)
     })?.result
+
+    const fusionArcana = sameArcana ? persona1.arcana : findArcana
 
     if (!fusionLevel || !fusionArcana) {
       throw new GraphQLError('Invalid level or arcana', {
@@ -204,8 +209,6 @@ export const checkForStandardFusion =
         }
       })
     }
-
-    const sameArcana = persona1.arcana === persona2.arcana
 
     const whereQuery = `
       WHERE p.arcana = $1 
@@ -233,4 +236,233 @@ export const checkForStandardFusion =
     }
 
     return persona
+}
+
+interface ArcanaCombo {
+  source: Array<String>,
+  result: String
+}
+
+export const getDiffArcanaRecipes = 
+  async (arcanaRecipes: Array<ArcanaCombo>, personaId: number, 
+  targetArcana: string, dlc: boolean) => {
+    const personaPairs = []
+
+    for (let i = 0; i < arcanaRecipes.length; i++) {
+      const personasQuery = `
+        SELECT base_level, persona_id, name, arcana, treasure
+        FROM personas
+        WHERE arcana = $1
+          AND persona_id != $2
+      `
+      const getPersonasA = await pool.query(personasQuery, [
+        arcanaRecipes[i].source[0],
+        personaId
+      ])
+
+      const getPersonasB = await pool.query(personasQuery, [
+        arcanaRecipes[i].source[1],
+        personaId
+      ])
+
+      const personasA = humps.camelizeKeys(getPersonasA.rows)
+      const personasB = humps.camelizeKeys(getPersonasB.rows)
+
+      if(!Array.isArray(personasA) || !Array.isArray(personasB)) {
+        throw new GraphQLError('Not array')
+      } 
+
+      for (let j = 0; j < personasA.length; j++) {
+        for (let k = 0; k < personasB.length; k++) {
+          const fusionLevel = 
+            Math.floor((personasA[j].baseLevel + personasB[k].baseLevel) / 2) + 1
+          
+          if ((personasA[j].treasure || personasB[k].treasure) && 
+            !(personasA[j].treasure && personasB[k].treasure)) {
+              continue
+            }
+
+          const standardFusionQuery = `
+            SELECT persona_id
+            FROM personas
+            WHERE arcana = $1 
+              AND base_level >= $2
+              AND (dlc = $3 OR dlc = false)
+              AND special = false
+            ORDER BY base_level
+            LIMIT 1
+          `
+
+          const getFusionQuery = 
+            await pool.query(standardFusionQuery, [targetArcana, fusionLevel, dlc])
+          const fusedPersonaId = getFusionQuery.rows[0]?.persona_id
+
+          if (fusedPersonaId === personaId) {
+            // personaPairs.push({
+            //   persona1: personas[j].personaId,
+            //   persona2: treasures[k].personaId
+            // })
+            const whereQuery1 = `WHERE p.persona_id = ${personasA[j].personaId}`
+            const whereQuery2 = `WHERE p.persona_id = ${personasB[k].personaId}`
+            const persona1Query = await pool.query(getPersonasQuery(whereQuery1, '', ''))
+            const persona2Query = await pool.query(getPersonasQuery(whereQuery2, '', ''))
+            const persona1 = humps.camelizeKeys(persona1Query.rows[0])
+            const persona2 = humps.camelizeKeys(persona2Query.rows[0])
+            personaPairs.push({
+              persona1,
+              persona2
+            })
+          }
+        }
+      }
+    }
+
+    return personaPairs
+}
+
+export const getSameArcanaRecipes =
+  async (personaId: number, targetArcana: string, dlc: boolean) => {
+    const personaPairs = []
+
+    const personasQuery = `
+      SELECT base_level, persona_id, name, arcana, treasure
+      FROM personas
+      WHERE arcana = $1
+        AND persona_id != $2
+    `
+    const getPersonasA = await pool.query(personasQuery, [
+      targetArcana,
+      personaId
+    ])
+
+    const getPersonasB = await pool.query(personasQuery, [
+      targetArcana,
+      personaId
+    ])
+
+    const personasA = humps.camelizeKeys(getPersonasA.rows)
+    const personasB = humps.camelizeKeys(getPersonasB.rows)
+
+    if(!Array.isArray(personasA) || !Array.isArray(personasB)) {
+      throw new GraphQLError('Not array')
+    } 
+
+    for (let j = 0; j < personasA.length; j++) {
+      for (let k = 0; k < personasB.length; k++) {
+        const fusionLevel = 
+          Math.floor((personasA[j].baseLevel + personasB[k].baseLevel) / 2) + 1
+        
+        if ((personasA[j].treasure || personasB[k].treasure) && 
+          !(personasA[j].treasure && personasB[k].treasure)) {
+            continue
+          }
+
+        const standardFusionQuery = `
+          SELECT persona_id
+          FROM personas
+          WHERE arcana = $1 
+            AND base_level <= $2
+            AND (dlc = $3 OR dlc = false)
+            AND special = false
+          ORDER BY base_level DESC
+          LIMIT 1
+        `
+
+        const getFusionQuery = 
+          await pool.query(standardFusionQuery, [targetArcana, fusionLevel, dlc])
+        const fusedPersonaId = getFusionQuery.rows[0]?.persona_id
+
+        if (fusedPersonaId === personaId) {
+          // personaPairs.push({
+          //   persona1: personas[j].personaId,
+          //   persona2: treasures[k].personaId
+          // })
+          const whereQuery1 = `WHERE p.persona_id = ${personasA[j].personaId}`
+          const whereQuery2 = `WHERE p.persona_id = ${personasB[k].personaId}`
+          const persona1Query = await pool.query(getPersonasQuery(whereQuery1, '', ''))
+          const persona2Query = await pool.query(getPersonasQuery(whereQuery2, '', ''))
+          const persona1 = humps.camelizeKeys(persona1Query.rows[0])
+          const persona2 = humps.camelizeKeys(persona2Query.rows[0])
+          personaPairs.push({
+            persona1,
+            persona2
+          })
+        }
+      }
+      personasB.shift()
+    }
+
+    return personaPairs
+}
+
+export const getTreasureRecipes = 
+  async (targetArcana: string, personaId: number, dlc: boolean) => {
+  const personaPairs = []
+
+  const personasQuery = `
+    SELECT base_level, persona_id, name, arcana, treasure
+    FROM personas
+    WHERE arcana = $1
+      AND persona_id != $2
+  `
+  const getPersonasA = await pool.query(personasQuery, [
+    targetArcana,
+    personaId
+  ])
+  const personas = humps.camelizeKeys(getPersonasA.rows)
+
+  const treasureQuery = `
+    SELECT p.persona_id, p.name, p.arcana, p.treasure, ${`${targetArcana.toLowerCase()}_mod`} as modifier
+    FROM personas p
+    JOIN treasure_modifiers t
+      ON t.persona_id = p.persona_id
+    WHERE treasure = true
+  `
+  const getTreasures = 
+    await pool.query(treasureQuery)
+  const treasures = humps.camelizeKeys(getTreasures.rows)
+
+  if (!Array.isArray(personas) || !Array.isArray(treasures)) {
+    throw new GraphQLError('error')
+  }
+
+  for (let j = 0; j < personas.length; j++) {
+    for (let k = 0; k < treasures.length; k++) {
+      const newLevel = personas[j].baseLevel + treasures[k].modifier
+
+      const standardFusionQuery = `
+        SELECT persona_id
+        FROM personas
+        WHERE arcana = $1 
+          AND base_level >= $2
+          AND (dlc = $3 OR dlc = false)
+          AND special = false
+        ORDER BY base_level
+        LIMIT 1
+      `
+
+      const getFusionQuery = 
+        await pool.query(standardFusionQuery, [targetArcana, newLevel, dlc])
+      const fusedPersonaId = getFusionQuery.rows[0]?.persona_id
+
+      if (fusedPersonaId === personaId) {
+        // personaPairs.push({
+        //   persona1: personas[j].personaId,
+        //   persona2: treasures[k].personaId
+        // })
+        const whereQuery1 = `WHERE p.persona_id = ${personas[j].personaId}`
+        const whereQuery2 = `WHERE p.persona_id = ${treasures[k].personaId}`
+        const persona1Query = await pool.query(getPersonasQuery(whereQuery1, '', ''))
+        const persona2Query = await pool.query(getPersonasQuery(whereQuery2, '', ''))
+        const persona1 = humps.camelizeKeys(persona1Query.rows[0])
+        const persona2 = humps.camelizeKeys(persona2Query.rows[0])
+        personaPairs.push({
+          persona1,
+          persona2
+        })
+      }
+    }
+  }
+
+  return personaPairs
 }
