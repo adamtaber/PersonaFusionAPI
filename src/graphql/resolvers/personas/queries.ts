@@ -12,6 +12,7 @@ import { checkForStandardFusion } from "./helpers/checkForStandardFusion";
 import { getDiffArcanaRecipes } from "./helpers/getDiffArcanaRecipes";
 import { getSameArcanaRecipes } from "./helpers/getSameArcanaRecipes";
 import { getTreasureRecipes } from "./helpers/getTreasureRecipes";
+import { getFusionFromIds } from "./helpers/getFusionFromIds";
 
 const personaQueries: QueryResolvers = {
   allPersonas: async (_root, { dlc }) => {
@@ -103,53 +104,47 @@ const personaQueries: QueryResolvers = {
       })
     }
 
-    const specialFusion = await checkForSpecial(persona1Id, persona2Id)
-    if (specialFusion) return specialFusion
+    const persona = getFusionFromIds(persona1Id, persona2Id, dlc)
 
-    const persona1 = await getBasicPersona(persona1Id)
-    const persona2 = await getBasicPersona(persona2Id)
-
-    if (
-      (persona1.treasure || persona2.treasure) && 
-      !(persona1.treasure && persona2.treasure)
-    ) {
-      const treasureFusion = await checkForTreasure(persona1, persona2, dlc)
-      if (treasureFusion) return treasureFusion
-      else throw new GraphQLError('No Treasure Fusion')
-    }
-
-    const standardFusion = await checkForStandardFusion(
-      persona1, 
-      persona2, 
-      dlc
-    )
-    if (standardFusion) return standardFusion
-    else 
-      throw new GraphQLError('Invalid fusion', {
+    return persona
+  },
+  getPersonaFusionByName: async (_root, { persona1Name, persona2Name, dlc }) => {
+    if (!persona1Name || !persona2Name || dlc === undefined) {
+      throw new GraphQLError('Missing parameters', {
         extensions: {
           code: 'INVALID_TYPE'
         }
       })
+    }
+
+    if (persona1Name === persona2Name) {
+      throw new GraphQLError('Invalid parameters: Personas must be different', {
+        extensions: {
+          code: 'INVALID_TYPE'
+        }
+      })
+    }
+
+    const personaIdQuery = `
+      SELECT persona_id
+      FROM personas
+      WHERE LOWER(name) = LOWER($1)
+    `
+
+    const getPersonaId1 = await pool.query(personaIdQuery, [persona1Name])
+    const getPersonaId2 = await pool.query(personaIdQuery, [persona2Name])
+
+    const persona1Id = getPersonaId1.rows[0]?.persona_id
+    const persona2Id = getPersonaId2.rows[0]?.persona_id
+
+    if (!persona1Id || !persona2Id) {
+      throw new GraphQLError('One of the two personas are invalid')
+    }
+
+    const persona = await getFusionFromIds(persona1Id, persona2Id, dlc)
+
+    return persona
   },
-  // getPersonaFusionByName: async (_root, { persona1Name, persona2Name, dlc }) => {
-  //   if (!persona1Name || !persona2Name || dlc === undefined) {
-  //     throw new GraphQLError('Missing parameters', {
-  //       extensions: {
-  //         code: 'INVALID_TYPE'
-  //       }
-  //     })
-  //   }
-
-  //   if (persona1Name === persona2Name) {
-  //     throw new GraphQLError('Invalid parameters: Personas must be different', {
-  //       extensions: {
-  //         code: 'INVALID_TYPE'
-  //       }
-  //     })
-  //   }
-
-    
-  // },
   getPersonaRecipesById: async (_root, { personaId, dlc }) => {
     if(!personaId || dlc === undefined) {
       throw new GraphQLError('Missing parameters', {
