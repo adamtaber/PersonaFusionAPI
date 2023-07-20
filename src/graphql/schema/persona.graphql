@@ -33,12 +33,15 @@ type Persona {
 }
 
 type Query {
-  allPersonas: [Persona!]!
+  allPersonas(
+    dlc: Boolean!
+  ): [Persona!]!
   personaById(
     personaId: Int!
   ): Persona
   personaByName(
-    name: String!
+    name: String!,
+    dlc: Boolean!
   ): [Persona]!
   getPersonaFusionById(
     persona1Id: Int!,

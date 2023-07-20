@@ -31,3 +31,25 @@ export const isPersonaRecipeArray = (input: any): input is Array<PersonaRecipe> 
   const filter = input.filter(isPersonaRecipe)
   return initLength === filter.length
 }
+
+export interface BasicPersona {
+  personaId: number,
+  name: string,
+  baseLevel: number,
+  arcana: string,
+  treasure: boolean
+}
+
+export const isBasicPersona = (input: any): input is BasicPersona => {
+  const minPersona = (input.personaId !== undefined) &&
+                     (input.name !== undefined) &&
+                     (input.baseLevel !== undefined) &&
+                     (input.arcana !== undefined) &&
+                     (input.treasure !== undefined)
+  return minPersona
+}
+
+export interface ArcanaCombo {
+  source: Array<string>,
+  result: string
+}

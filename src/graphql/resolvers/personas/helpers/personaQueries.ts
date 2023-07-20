@@ -67,3 +67,40 @@ export const treasureModifierQuery = (arcana: string, treasureId: number) => `
   FROM treasure_modifiers
   WHERE persona_id = ${treasureId}
 `
+
+export const standardFusionQuery = `
+  SELECT persona_id
+  FROM personas
+  WHERE arcana = $1 
+    AND base_level >= $2
+    AND (dlc = $3 OR dlc = false)
+    AND special = false
+    AND persona_id != $4
+    AND persona_id != $5
+  ORDER BY base_level
+  LIMIT 1
+`
+
+export const basicPersonasByArcanaQuery = `
+  SELECT base_level, persona_id, name, arcana, treasure
+  FROM personas
+  WHERE arcana = $1
+    AND (dlc = $2 OR dlc = false)
+  ORDER BY base_level
+`
+
+export const treasuresQuery = (arcana: string) => `
+  SELECT p.persona_id, p.name, p.arcana, 
+    p.treasure, 
+    ${`${arcana.toLowerCase()}_mod`} as modifier
+  FROM personas p
+  JOIN treasure_modifiers t
+    ON t.persona_id = p.persona_id
+  WHERE treasure = true
+`
+
+export const dlcList = `
+  SELECT persona_id
+  FROM personas
+  WHERE dlc = true
+`
