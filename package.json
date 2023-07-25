@@ -21,7 +21,8 @@
     "express": "^4.18.2",
     "graphql": "^16.7.1",
     "humps": "^2.0.1",
-    "pg": "^8.11.1"
+    "pg": "^8.11.1",
+    "puppeteer": "^20.9.0"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^4.0.1",
