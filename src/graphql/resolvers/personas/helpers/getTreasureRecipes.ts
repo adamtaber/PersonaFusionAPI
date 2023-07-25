@@ -2,7 +2,7 @@ import { GraphQLError } from "graphql"
 import { pool } from "../../../../db/config"
 import humps from 'humps'
 import { basicPersonasByArcanaQuery, dlcList, getPersonasQuery, treasuresQuery } from "./personaQueries"
-import { getFullPersonaInfo } from "./getBasicPersona"
+import { getFullPersonaInfo } from "./basicHelpers"
 
 export const getTreasureRecipes = 
   async (targetArcana: string, personaId: number, dlc: boolean) => {

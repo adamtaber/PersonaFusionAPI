@@ -1,7 +1,7 @@
 import { ArcanaCombo } from "../types"
 import { pool } from "../../../../db/config"
 import { standardFusionQuery } from "./personaQueries"
-import { getBasicPersonasByArcana, getFullPersonaInfo } from "./getBasicPersona"
+import { getBasicPersonasByArcana, getFullPersonaInfo } from "./basicHelpers"
 
 export const getDiffArcanaRecipes = async (
   arcanaRecipes: Array<ArcanaCombo>, 

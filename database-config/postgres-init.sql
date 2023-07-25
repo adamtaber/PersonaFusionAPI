@@ -13,6 +13,13 @@ CREATE TABLE skills (
   cost INTEGER
 );
 
+CREATE TABLE traits (
+  trait_id SERIAL NOT NULL PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL,
+  category TEXT NOT NULL
+);
+
 CREATE TABLE personas (
   persona_id SERIAL NOT NULL PRIMARY KEY,
   name TEXT NOT NULL,
@@ -22,17 +29,43 @@ CREATE TABLE personas (
   dlc BOOLEAN NOT NULL,
   treasure BOOLEAN NOT NULL,
   inheritance_type TEXT,
-  stats INTEGER [] NOT NULL,
-  elementals TEXT [] NOT NULL,
-  skills JSON,
+  trait_id INT,
   normal_item_id INT,
   fusion_alarm_item_id INT,
   normal_skillcard_id INT,
   fusion_alarm_skillcard_id INT,
+  FOREIGN KEY (trait_id) REFERENCES traits (trait_id),
   FOREIGN KEY (normal_item_id) REFERENCES items (item_id),
   FOREIGN KEY (fusion_alarm_item_id) REFERENCES items (item_id),
   FOREIGN KEY (normal_skillcard_id) REFERENCES skills (skill_id),
   FOREIGN KEY (fusion_alarm_skillcard_id) REFERENCES skills (skill_id)
+);
+
+CREATE TABLE persona_affinities (
+  persona_affinities_id SERIAL NOT NULL PRIMARY KEY,
+  persona_id INTEGER NOT NULL,
+  phys TEXT NOT NULL,
+  gun TEXT NOT NULL,
+  fire TEXT NOT NULL,
+  ice TEXT NOT NULL,
+  elec TEXT NOT NULL,
+  wind TEXT NOT NULL,
+  psy TEXT NOT NULL,
+  nuke TEXT NOT NULL,
+  bless TEXT NOT NULL,
+  curse TEXT NOT NULL,
+  FOREIGN KEY (persona_id) REFERENCES personas (persona_id)
+);
+
+CREATE TABLE persona_stats (
+  persona_stats_id SERIAL NOT NULL PRIMARY KEY,
+  persona_id INTEGER NOT NULL,
+  strength INTEGER NOT NULL,
+  magic INTEGER NOT NULL,
+  endurance INTEGER NOT NULL,
+  agility INTEGER NOT NULL,
+  luck INTEGER NOT NULL,
+  FOREIGN KEY (persona_id) REFERENCES personas (persona_id)
 );
 
 CREATE TABLE persona_skills (

@@ -1,0 +1,10 @@
+type Trait {
+  traitId: Int!,
+  name: String!,
+  description: String!,
+  category: String!
+}
+
+type Query {
+  allTraits: [Trait!]!
+}

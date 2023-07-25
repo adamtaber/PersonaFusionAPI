@@ -2,17 +2,15 @@ import { p5rItems } from "../../seed-data/p5rItems"
 import { p5rPersonas } from "../../seed-data/p5rPersonas"
 import { p5rSkills } from "../../seed-data/p5rSkills"
 import { p5rSpecials } from "../../seed-data/p5rSpecials"
+import { p5rTraits } from "../../seed-data/p5rTraits"
 import { itemQueries } from "../graphql/resolvers/items"
 import { pool } from "./config"
+import { findItemQuery, findSkillQuery, findTraitQuery, seedItemsQuery, seedPersonaAffinitiesQuery, seedPersonaSkillsQuery, seedPersonaStatsQuery, seedPersonasQuery, seedSkillsQuery, seedTraitsQuery } from "./seedQueries"
 import { treasureCombos, treasureDemons } from "./treasureCombos"
 
 export const seedSkills = async () => {
-  const skillInputQuery = `
-    INSERT INTO skills (type, name, effect, cost)
-    VALUES ($1, $2, $3, $4)
-  `
-
   const skillArr = Object.entries(p5rSkills)
+
   skillArr.forEach(async (skill) => {
     const name = skill[0]
     const type = skill[1].element
@@ -20,107 +18,144 @@ export const seedSkills = async () => {
     const cost = skill[1].cost
     const values = [type, name, effect, cost]
 
-    await pool.query(skillInputQuery, values)
+    await pool.query(seedSkillsQuery, values)
   })
 }
 
 export const seedItems = async () => {
-  const itemInputQuery = `
-    INSERT INTO items (type, name, description)
-    VALUES ($1, $2, $3)
-  `
-
   const itemArr = Object.entries(p5rItems)
+
   itemArr.forEach(async (item) => {
     const name = item[0]
     const type = item[1].type
     const description = item[1].description
     const values = [type, name, description]
 
-    await pool.query(itemInputQuery, values)
+    await pool.query(seedItemsQuery, values)
   })
 }
 
+export const seedTraits = async () => {
+  const traitArr = Object.entries(p5rTraits)
+
+  traitArr.forEach(async (trait) => {
+    const name = trait[0]
+    const description = trait[1].description
+    const category = trait[1].category
+
+    const values = [name, description, category]
+
+    await pool.query(seedTraitsQuery, values)
+  })
+}
+
+const seedPersonaSkills = async (
+  skills: [string, number][],
+  personaId: number
+) => {
+  for (let i = 0; i < skills.length; i++) {
+    const skill = skills[i]
+    const skillIdQuery = await pool.query(findSkillQuery, [skill[0]])
+    const skillId = skillIdQuery.rows[0].skill_id
+    const skillLvl = skill[1]
+    const values = [skillLvl, personaId, skillId]
+    await pool.query(seedPersonaSkillsQuery, values)
+  }
+}
+
+const seedPersonaStats = async (stats: number[], personaId: number) => {
+  const strength = stats[0]
+  const magic = stats[1]
+  const endurance = stats[2]
+  const agility = stats[3]
+  const luck = stats[4]
+
+  const values = [personaId, strength, magic, endurance, agility, luck]
+
+  await pool.query(seedPersonaStatsQuery, values)
+}
+
+const seedPersonaAffinities = async (
+  affinities: string[], 
+  personaId: number
+) => {
+  const phys = affinities[0]
+  const gun = affinities[1]
+  const fire = affinities[2]
+  const ice = affinities[3]
+  const elec = affinities[4]
+  const wind = affinities[5]
+  const psy = affinities[6]
+  const nuke = affinities[7]
+  const bless = affinities[8]
+  const curse = affinities[9]
+
+  const values = [
+    personaId, phys, gun, fire, ice, elec, wind, psy, nuke,
+    bless, curse
+  ]
+
+  await pool.query(seedPersonaAffinitiesQuery, values)
+}
+
 export const seedPersonas = async () => {
-  const personaInputQuery = `
-    INSERT INTO personas (name, base_level, special, dlc, treasure,
-      inheritance_type,
-      stats, elementals, arcana, normal_item_id, fusion_alarm_item_id, 
-      normal_skillcard_id, fusion_alarm_skillcard_id)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-    RETURNING persona_id
-  `
-
-  const itemQuery = `
-    SELECT item_id
-    FROM items
-    WHERE name = $1
-  `
-
-  const skillQuery = `
-    SELECT skill_id
-    FROM skills
-    WHERE name = $1
-  `
-
-  const personaSkillInputQuery = `
-    INSERT INTO persona_skills (level, persona_id, skill_id)
-    VALUES ($1, $2, $3)
-  `
-
   const personaArr = Object.entries(p5rPersonas)
-  // personaArr.forEach(async (persona) => {
+
   for (let i = 0; i < personaArr.length; i++) {
     const persona = personaArr[i]
-
     const name = persona[0]
     const baseLevel = persona[1].level
     const special = persona[1].special ?? false
     const dlc = persona[1].dlc ?? false
     const treasure = persona[1].rare ?? false
     const inheritanceType = persona[1].inherits
-    const stats = persona[1].stats
-    const elementals = persona[1].elems
     const arcana = persona[1].arcana
+    const traitQuery = persona[1].trait
+      ? await pool.query(findTraitQuery, [persona[1].trait])
+      : null
     const skillCardQuery = persona[1].skillCard
-      ? await pool.query(skillQuery, [persona[1].item])
+      ? await pool.query(findSkillQuery, [persona[1].item])
       : null
     const fusionAlarmSkillCardQuery = persona[1].skillCard
-      ? await pool.query(skillQuery, [persona[1].itemr])
+      ? await pool.query(findSkillQuery, [persona[1].itemr])
       : null
     const normalItemQuery = !persona[1].skillCard
-      ? await pool.query(itemQuery, [persona[1].item])
+      ? await pool.query(findItemQuery, [persona[1].item])
       : null
     const fusionAlarmItemQuery = !persona[1].skillCard
-      ? await pool.query(itemQuery, [persona[1].itemr])
+      ? await pool.query(findItemQuery, [persona[1].itemr])
       : null
-    const skillCardId = skillCardQuery ? skillCardQuery.rows[0].skill_id : null
-    const fusionAlarmSkillCardId = fusionAlarmSkillCardQuery
-      ? fusionAlarmSkillCardQuery.rows[0].skill_id
-      : null
-    const itemId = normalItemQuery ? normalItemQuery.rows[0].item_id : null
-    const fusionAlarmItemId = fusionAlarmItemQuery 
-      ? fusionAlarmItemQuery.rows[0].item_id
-      : null
+    const trait = traitQuery?.rows[0].trait_id ?? null
+    const skillCardId = skillCardQuery?.rows[0].skill_id ?? null
+    const fusionAlarmSkillCardId = 
+      fusionAlarmSkillCardQuery?.rows[0].skill_id ?? null
+    const itemId = normalItemQuery?.rows[0].item_id ?? null
+    const fusionAlarmItemId = 
+      fusionAlarmItemQuery?.rows[0].item_id ?? null
 
-    const values = [name, baseLevel, special, dlc, treasure, inheritanceType,
-      stats, elementals, arcana, itemId, fusionAlarmItemId, skillCardId,
-      fusionAlarmSkillCardId]
+    const values = [
+      name, baseLevel, special, dlc, treasure, inheritanceType,
+      arcana, trait, itemId, fusionAlarmItemId, skillCardId,
+      fusionAlarmSkillCardId
+    ]
 
-    const newPersona = await pool.query(personaInputQuery, values)
+    const newPersona = await pool.query(seedPersonasQuery, values)
     const personaId = newPersona.rows[0].persona_id
-    console.log(personaId)
     
     const skillArr = Object.entries(persona[1].skills)
 
-    for (let i = 0; i < skillArr.length; i++) {
-      const skill = skillArr[i]
-      const skillIdQuery = await pool.query(skillQuery, [skill[0]])
-      const skillId = skillIdQuery.rows[0].skill_id
-      const skillLvl = skill[1]
-      const values = [skillLvl, personaId, skillId]
-      await pool.query(personaSkillInputQuery, values)
-    }
+    seedPersonaSkills(skillArr, personaId)
+    seedPersonaStats(persona[1].stats, personaId)
+    seedPersonaAffinities(persona[1].elems, personaId)
+
+    // for (let i = 0; i < skillArr.length; i++) {
+    //   const skill = skillArr[i]
+    //   const skillIdQuery = await pool.query(findSkillQuery, [skill[0]])
+    //   const skillId = skillIdQuery.rows[0].skill_id
+    //   const skillLvl = skill[1]
+    //   const values = [skillLvl, personaId, skillId]
+    //   await pool.query(seedPersonaSkillsQuery, values)
+    // }
   }
 }
 

@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql"
 import { checkForSpecial } from "./checkForSpecial"
 import { checkForTreasure } from "./checkForTreasure"
-import { getBasicPersona } from "./getBasicPersona"
+import { getBasicPersona } from "./basicHelpers"
 import { checkForStandardFusion } from "./checkForStandardFusion"
 
 export const getFusionFromIds = async (

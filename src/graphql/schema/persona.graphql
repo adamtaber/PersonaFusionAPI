@@ -13,6 +13,27 @@ type PersonaRecipe {
   persona2: Persona!
 }
 
+type PersonaStats {
+  strength: Int!,
+  magic: Int!,
+  endurance: Int!,
+  agility: Int!,
+  luck: Int!
+}
+
+type PersonaAffinities {
+  phys: String!,
+  gun: String!,
+  fire: String!,
+  ice: String!,
+  elec: String!,
+  wind: String!,
+  psy: String!,
+  nuke: String!,
+  bless: String!,
+  curse: String!
+}
+
 type Persona {
   personaId: Int!,
   name: String!,
@@ -23,9 +44,10 @@ type Persona {
   treasure: Boolean!,
   treasureMods: [TreasureMod]
   inheritanceType: String,
-  stats: [Int!]!,
-  elementals: [String!]!,
+  stats: PersonaStats!,
+  affinities: PersonaAffinities!,
   skills: [PersonaSkill!]!,
+  trait: Trait,
   normalItem: Item,
   fusionAlarmItem: Item,
   normalSkillCard: Skill,

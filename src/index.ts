@@ -9,7 +9,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema'
 import typeDefs from './graphql/schema'
 import resolvers from './graphql/resolvers'
 import * as dotenv from 'dotenv'
-import { seedItems, seedPersonas, seedSkills, seedSpecialPersonas, seedTreasureMods } from './db/seed';
+import { seedItems, seedPersonas, seedSkills, seedSpecialPersonas, seedTraits, seedTreasureMods } from './db/seed';
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` })
 
 
@@ -30,30 +30,12 @@ const startServer = async () => {
   console.log(`Server ready at ${url}`)
 }
 
-// const startServer = async () => {
-//   await server.start()
-
-//   app.use(
-//     '/graphql',
-//     cors<cors.CorsRequest>(),
-//     express.json(),
-//     expressMiddleware(server)
-//   )
-
-//   httpServer.listen(port, () => 
-//   console.log(`server listening on port ${port}`))
-// }
-
 startServer()
-// seedSkills()
-// seedItems()
-// seedPersonas()
-// seedSpecialPersonas()
-// seedTreasureMods()
 
 // const seedData = async () => {
 //   await seedSkills()
 //   await seedItems()
+//   await seedTraits()
 //   await seedPersonas()
 //   await seedSpecialPersonas()
 //   await seedTreasureMods()

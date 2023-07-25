@@ -5,10 +5,7 @@ import humps from 'humps'
 import { isPersona, isPersonaArray, isPersonaRecipeArray } from "./types";
 import { arcanaCombos } from "../../../db/arcanaCombos";
 import { getPersonasQuery } from "./helpers/personaQueries";
-import { checkForSpecial } from "./helpers/checkForSpecial";
-import { getBasicPersona } from "./helpers/getBasicPersona";
-import { checkForTreasure } from "./helpers/checkForTreasure";
-import { checkForStandardFusion } from "./helpers/checkForStandardFusion";
+import { getBasicPersona } from "./helpers/basicHelpers";
 import { getDiffArcanaRecipes } from "./helpers/getDiffArcanaRecipes";
 import { getSameArcanaRecipes } from "./helpers/getSameArcanaRecipes";
 import { getTreasureRecipes } from "./helpers/getTreasureRecipes";
@@ -21,8 +18,6 @@ const personaQueries: QueryResolvers = {
     const query = getPersonasQuery(whereQuery, orderByQuery, '')
     const allPersonasQuery = await pool.query(query)
     const personas = humps.camelizeKeys(allPersonasQuery.rows)
-
-    if(Array.isArray(personas)) console.log(personas[0].skills2, personas.length)
 
     if(!isPersonaArray(personas)) {
       throw new GraphQLError('Query result must be an array', {

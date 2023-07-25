@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql"
 import { pool } from "../../../../db/config"
 import { BasicPersona } from "../types"
-import { getBasicPersonasByArcana, getFullPersonaInfo } from "./getBasicPersona"
+import { getBasicPersonasByArcana, getFullPersonaInfo } from "./basicHelpers"
 
 const getPersonaId = async (
   targetArcana: string,

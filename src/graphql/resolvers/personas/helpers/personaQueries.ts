@@ -26,7 +26,22 @@ export const getPersonasQuery = (where: string, order: string, limit: string) =>
       json_build_object(
         'name', i_fusion.name, 'description', i_fusion.description,
         'item_id', i_fusion.item_id
-      ) as fusion_alarm_item
+      ) as fusion_alarm_item,
+      json_build_object(
+        'strength', p_stats.strength, 'magic', p_stats.magic,
+        'endurance', p_stats.endurance, 'agility', p_stats.agility,
+        'luck', p_stats.luck
+      ) as stats,
+      json_build_object(
+        'phys', p_aff.phys, 'gun', p_aff.gun, 'fire', p_aff.fire,
+        'ice', p_aff.ice, 'elec', p_aff.elec, 'wind', p_aff.wind,
+        'psy', p_aff.psy, 'nuke', p_aff.nuke, 'bless', p_aff.bless,
+        'curse', p_aff.curse
+      ) as affinities,
+      json_build_object(
+        'name', t.name, 'description', t.description, 
+        'category', t.category
+      ) as trait
     FROM personas p
     LEFT JOIN persona_skills ps
       ON ps.persona_id = p.persona_id
@@ -40,9 +55,22 @@ export const getPersonasQuery = (where: string, order: string, limit: string) =>
       ON p.normal_skillcard_id = s_normal.skill_id
     LEFT JOIN skills s_fusion
       ON p.fusion_alarm_skillcard_id = s_fusion.skill_id
+    LEFT JOIN persona_affinities p_aff
+      ON p_aff.persona_id = p.persona_id
+    LEFT JOIN persona_stats p_stats
+      ON p_stats.persona_id = p.persona_id
+    LEFT JOIN traits t
+      ON p.trait_id = t.trait_id
     ${where}
-    GROUP BY p.persona_id, s_normal.skill_id, i_normal.item_id,
-      s_fusion.skill_id, i_fusion.item_id
+    GROUP BY 
+      p.persona_id, 
+      s_normal.skill_id, 
+      i_normal.item_id,
+      s_fusion.skill_id, 
+      i_fusion.item_id,
+      p_aff.persona_affinities_id,
+      p_stats.persona_stats_id,
+      t.trait_id
     ${order}
     ${limit}
   `

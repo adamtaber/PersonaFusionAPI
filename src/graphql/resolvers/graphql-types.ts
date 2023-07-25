@@ -25,10 +25,10 @@ export type Item = {
 
 export type Persona = {
   __typename?: 'Persona';
+  affinities: PersonaAffinities;
   arcana: Scalars['String']['output'];
   baseLevel: Scalars['Int']['output'];
   dlc: Scalars['Boolean']['output'];
-  elementals: Array<Scalars['String']['output']>;
   fusionAlarmItem?: Maybe<Item>;
   fusionAlarmSkillCard?: Maybe<Skill>;
   inheritanceType?: Maybe<Scalars['String']['output']>;
@@ -38,9 +38,24 @@ export type Persona = {
   personaId: Scalars['Int']['output'];
   skills: Array<PersonaSkill>;
   special: Scalars['Boolean']['output'];
-  stats: Array<Scalars['Int']['output']>;
+  stats: PersonaStats;
+  trait?: Maybe<Trait>;
   treasure: Scalars['Boolean']['output'];
   treasureMods?: Maybe<Array<Maybe<TreasureMod>>>;
+};
+
+export type PersonaAffinities = {
+  __typename?: 'PersonaAffinities';
+  bless: Scalars['String']['output'];
+  curse: Scalars['String']['output'];
+  elec: Scalars['String']['output'];
+  fire: Scalars['String']['output'];
+  gun: Scalars['String']['output'];
+  ice: Scalars['String']['output'];
+  nuke: Scalars['String']['output'];
+  phys: Scalars['String']['output'];
+  psy: Scalars['String']['output'];
+  wind: Scalars['String']['output'];
 };
 
 export type PersonaRecipe = {
@@ -55,11 +70,21 @@ export type PersonaSkill = {
   skill: Skill;
 };
 
+export type PersonaStats = {
+  __typename?: 'PersonaStats';
+  agility: Scalars['Int']['output'];
+  endurance: Scalars['Int']['output'];
+  luck: Scalars['Int']['output'];
+  magic: Scalars['Int']['output'];
+  strength: Scalars['Int']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
   allItems: Array<Item>;
   allPersonas: Array<Persona>;
   allSkills: Array<Maybe<Skill>>;
+  allTraits: Array<Trait>;
   getPersonaFusionById?: Maybe<Persona>;
   getPersonaFusionByName?: Maybe<Persona>;
   getPersonaRecipesById: Array<Maybe<PersonaRecipe>>;
@@ -134,6 +159,14 @@ export type Skill = {
   name: Scalars['String']['output'];
   skillId: Scalars['Int']['output'];
   type: Scalars['String']['output'];
+};
+
+export type Trait = {
+  __typename?: 'Trait';
+  category: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  traitId: Scalars['Int']['output'];
 };
 
 export type TreasureMod = {
@@ -218,11 +251,14 @@ export type ResolversTypes = ResolversObject<{
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Item: ResolverTypeWrapper<Item>;
   Persona: ResolverTypeWrapper<Persona>;
+  PersonaAffinities: ResolverTypeWrapper<PersonaAffinities>;
   PersonaRecipe: ResolverTypeWrapper<PersonaRecipe>;
   PersonaSkill: ResolverTypeWrapper<PersonaSkill>;
+  PersonaStats: ResolverTypeWrapper<PersonaStats>;
   Query: ResolverTypeWrapper<{}>;
   Skill: ResolverTypeWrapper<Skill>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  Trait: ResolverTypeWrapper<Trait>;
   TreasureMod: ResolverTypeWrapper<TreasureMod>;
 }>;
 
@@ -232,11 +268,14 @@ export type ResolversParentTypes = ResolversObject<{
   Int: Scalars['Int']['output'];
   Item: Item;
   Persona: Persona;
+  PersonaAffinities: PersonaAffinities;
   PersonaRecipe: PersonaRecipe;
   PersonaSkill: PersonaSkill;
+  PersonaStats: PersonaStats;
   Query: {};
   Skill: Skill;
   String: Scalars['String']['output'];
+  Trait: Trait;
   TreasureMod: TreasureMod;
 }>;
 
@@ -248,10 +287,10 @@ export type ItemResolvers<ContextType = any, ParentType extends ResolversParentT
 }>;
 
 export type PersonaResolvers<ContextType = any, ParentType extends ResolversParentTypes['Persona'] = ResolversParentTypes['Persona']> = ResolversObject<{
+  affinities?: Resolver<ResolversTypes['PersonaAffinities'], ParentType, ContextType>;
   arcana?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   baseLevel?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   dlc?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  elementals?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   fusionAlarmItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType>;
   fusionAlarmSkillCard?: Resolver<Maybe<ResolversTypes['Skill']>, ParentType, ContextType>;
   inheritanceType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -261,9 +300,24 @@ export type PersonaResolvers<ContextType = any, ParentType extends ResolversPare
   personaId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   skills?: Resolver<Array<ResolversTypes['PersonaSkill']>, ParentType, ContextType>;
   special?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  stats?: Resolver<Array<ResolversTypes['Int']>, ParentType, ContextType>;
+  stats?: Resolver<ResolversTypes['PersonaStats'], ParentType, ContextType>;
+  trait?: Resolver<Maybe<ResolversTypes['Trait']>, ParentType, ContextType>;
   treasure?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   treasureMods?: Resolver<Maybe<Array<Maybe<ResolversTypes['TreasureMod']>>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PersonaAffinitiesResolvers<ContextType = any, ParentType extends ResolversParentTypes['PersonaAffinities'] = ResolversParentTypes['PersonaAffinities']> = ResolversObject<{
+  bless?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  curse?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  elec?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fire?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  gun?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ice?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  nuke?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  phys?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  psy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  wind?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -279,10 +333,20 @@ export type PersonaSkillResolvers<ContextType = any, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PersonaStatsResolvers<ContextType = any, ParentType extends ResolversParentTypes['PersonaStats'] = ResolversParentTypes['PersonaStats']> = ResolversObject<{
+  agility?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  endurance?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  luck?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  magic?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  strength?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   allItems?: Resolver<Array<ResolversTypes['Item']>, ParentType, ContextType>;
   allPersonas?: Resolver<Array<ResolversTypes['Persona']>, ParentType, ContextType, RequireFields<QueryAllPersonasArgs, 'dlc'>>;
   allSkills?: Resolver<Array<Maybe<ResolversTypes['Skill']>>, ParentType, ContextType>;
+  allTraits?: Resolver<Array<ResolversTypes['Trait']>, ParentType, ContextType>;
   getPersonaFusionById?: Resolver<Maybe<ResolversTypes['Persona']>, ParentType, ContextType, RequireFields<QueryGetPersonaFusionByIdArgs, 'dlc' | 'persona1Id' | 'persona2Id'>>;
   getPersonaFusionByName?: Resolver<Maybe<ResolversTypes['Persona']>, ParentType, ContextType, RequireFields<QueryGetPersonaFusionByNameArgs, 'dlc' | 'persona1Name' | 'persona2Name'>>;
   getPersonaRecipesById?: Resolver<Array<Maybe<ResolversTypes['PersonaRecipe']>>, ParentType, ContextType, RequireFields<QueryGetPersonaRecipesByIdArgs, 'dlc' | 'personaId'>>;
@@ -303,6 +367,14 @@ export type SkillResolvers<ContextType = any, ParentType extends ResolversParent
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type TraitResolvers<ContextType = any, ParentType extends ResolversParentTypes['Trait'] = ResolversParentTypes['Trait']> = ResolversObject<{
+  category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  traitId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type TreasureModResolvers<ContextType = any, ParentType extends ResolversParentTypes['TreasureMod'] = ResolversParentTypes['TreasureMod']> = ResolversObject<{
   arcana?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   modifier?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -312,10 +384,13 @@ export type TreasureModResolvers<ContextType = any, ParentType extends Resolvers
 export type Resolvers<ContextType = any> = ResolversObject<{
   Item?: ItemResolvers<ContextType>;
   Persona?: PersonaResolvers<ContextType>;
+  PersonaAffinities?: PersonaAffinitiesResolvers<ContextType>;
   PersonaRecipe?: PersonaRecipeResolvers<ContextType>;
   PersonaSkill?: PersonaSkillResolvers<ContextType>;
+  PersonaStats?: PersonaStatsResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Skill?: SkillResolvers<ContextType>;
+  Trait?: TraitResolvers<ContextType>;
   TreasureMod?: TreasureModResolvers<ContextType>;
 }>;
 

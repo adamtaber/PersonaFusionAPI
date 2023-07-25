@@ -3,7 +3,7 @@ import { pool } from "../../../../db/config"
 import humps from "humps"
 import { getPersonasQuery } from "./personaQueries"
 import { isBasicPersona, isPersona } from "../types"
-import { findNewTreasureFusionId, getBasicPersonasByArcana, getTreasureModifier } from "./getBasicPersona"
+import { findNewTreasureFusionId, getBasicPersonasByArcana, getTreasureModifier } from "./basicHelpers"
 
 const treasureFusion = async (newPersonaId: number) => {
   const whereQuery = `

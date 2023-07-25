@@ -7,7 +7,7 @@ export const isPersona = (input: any): input is Persona => {
                   (input.special !== undefined) &&
                   (input.inheritanceType !== undefined) &&
                   (input.stats !== undefined) &&
-                  (input.elementals !== undefined) &&
+                  (input.affinities !== undefined) &&
                   (input.skills !== undefined)
   return persona
 }
