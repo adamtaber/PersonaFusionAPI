@@ -110,6 +110,8 @@ export const seedPersonas = async () => {
     const treasure = persona[1].rare ?? false
     const inheritanceType = persona[1].inherits
     const arcana = persona[1].arcana
+    const background = persona[1].background
+    const fusionQuote = persona[1].fusionQuote ?? null
     const traitQuery = persona[1].trait
       ? await pool.query(findTraitQuery, [persona[1].trait])
       : null
@@ -135,7 +137,7 @@ export const seedPersonas = async () => {
 
     const values = [
       name, baseLevel, special, dlc, treasure, inheritanceType,
-      arcana, trait, itemId, fusionAlarmItemId, skillCardId,
+      arcana, background, fusionQuote, trait, itemId, fusionAlarmItemId, skillCardId,
       fusionAlarmSkillCardId
     ]
 

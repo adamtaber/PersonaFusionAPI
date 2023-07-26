@@ -48,6 +48,8 @@ type Persona {
   affinities: PersonaAffinities!,
   skills: [PersonaSkill!]!,
   trait: Trait,
+  background: String!,
+  fusionQuote: String,
   normalItem: Item,
   fusionAlarmItem: Item,
   normalSkillCard: Skill,

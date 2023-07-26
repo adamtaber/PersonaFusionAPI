@@ -29,6 +29,8 @@ CREATE TABLE personas (
   dlc BOOLEAN NOT NULL,
   treasure BOOLEAN NOT NULL,
   inheritance_type TEXT,
+  background TEXT NOT NULL,
+  fusion_quote TEXT,
   trait_id INT,
   normal_item_id INT,
   fusion_alarm_item_id INT,

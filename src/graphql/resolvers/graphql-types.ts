@@ -27,10 +27,12 @@ export type Persona = {
   __typename?: 'Persona';
   affinities: PersonaAffinities;
   arcana: Scalars['String']['output'];
+  background: Scalars['String']['output'];
   baseLevel: Scalars['Int']['output'];
   dlc: Scalars['Boolean']['output'];
   fusionAlarmItem?: Maybe<Item>;
   fusionAlarmSkillCard?: Maybe<Skill>;
+  fusionQuote?: Maybe<Scalars['String']['output']>;
   inheritanceType?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   normalItem?: Maybe<Item>;
@@ -289,10 +291,12 @@ export type ItemResolvers<ContextType = any, ParentType extends ResolversParentT
 export type PersonaResolvers<ContextType = any, ParentType extends ResolversParentTypes['Persona'] = ResolversParentTypes['Persona']> = ResolversObject<{
   affinities?: Resolver<ResolversTypes['PersonaAffinities'], ParentType, ContextType>;
   arcana?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  background?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   baseLevel?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   dlc?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   fusionAlarmItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType>;
   fusionAlarmSkillCard?: Resolver<Maybe<ResolversTypes['Skill']>, ParentType, ContextType>;
+  fusionQuote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   inheritanceType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   normalItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType>;
