@@ -1,5 +1,5 @@
 type Skill {
-  skillId: Int!,
+  skillId: ID!,
   name: String!,
   type: String!,
   effect: String!,

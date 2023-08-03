@@ -84,3 +84,11 @@ export const seedPersonaAffinitiesQuery = `
   )
   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 `
+
+export const seedTreasureTraitsQuery = `
+  INSERT INTO treasure_traits (
+    persona_id,
+    trait_id
+  )
+  VALUES ($1, $2)
+`

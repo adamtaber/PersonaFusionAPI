@@ -5,8 +5,8 @@ import { getBasicPersona } from "./basicHelpers"
 import { checkForStandardFusion } from "./checkForStandardFusion"
 
 export const getFusionFromIds = async (
-  persona1Id: number, 
-  persona2Id: number,
+  persona1Id: string, 
+  persona2Id: string,
   dlc: boolean
 ) => {
   const specialFusion = await checkForSpecial(persona1Id, persona2Id)

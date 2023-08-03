@@ -13,11 +13,37 @@ import { getFusionFromIds } from "./helpers/getFusionFromIds";
 
 const personaQueries: QueryResolvers = {
   allPersonas: async (_root, { dlc }) => {
+  //   const query = `
+  //   SELECT p.*, ps.skills, tr.treasure_traits
+  //   FROM personas p
+  //   LEFT JOIN (
+  //     SELECT persona_id, array_agg(json_build_object(
+  //       'level', level
+  //     )) AS skills
+  //     FROM persona_skills
+  //     GROUP BY 1
+  //   ) ps ON ps.persona_id = p.persona_id
+  //   LEFT JOIN (
+  //     SELECT persona_id, array_agg(json_build_object(
+  //       'trait_id', trait_id
+  //     )) AS treasure_traits
+  //     FROM treasure_traits
+  //     GROUP BY 1
+  //   ) tr ON tr.persona_id = p.persona_id
+  //   WHERE treasure = true
+  // `
+
     const orderByQuery = 'ORDER BY p.persona_id'
     const whereQuery = `WHERE (dlc = ${dlc} OR dlc = false)`
     const query = getPersonasQuery(whereQuery, orderByQuery, '')
     const allPersonasQuery = await pool.query(query)
     const personas = humps.camelizeKeys(allPersonasQuery.rows)
+
+    if (Array.isArray(personas)) personas.forEach((persona: any) => {
+      console.log(persona.name)
+      console.log(persona.skills)
+      console.log(persona.treasureTraits)
+    })
 
     if(!isPersonaArray(personas)) {
       throw new GraphQLError('Query result must be an array', {
@@ -26,6 +52,8 @@ const personaQueries: QueryResolvers = {
         }
       })
     }
+
+    console.log(personas)
 
     return personas
   },
@@ -64,13 +92,16 @@ const personaQueries: QueryResolvers = {
     }
 
     const whereQuery = `
-      WHERE LOWER(p.name) LIKE LOWER($1)
+      WHERE LOWER(unaccent(p.name)) LIKE LOWER(unaccent($1))
         AND (dlc = ${dlc} OR dlc = false)
     `
+
     const query = getPersonasQuery(whereQuery, '', '')
 
     const personaByNameQuery = await pool.query(query, [`%${name}%`])
     const personas = humps.camelizeKeys(personaByNameQuery.rows)
+
+    console.log(personas)
 
     if (!isPersonaArray(personas)) {
       throw new GraphQLError('Query result must be of type Persona', {
@@ -82,7 +113,7 @@ const personaQueries: QueryResolvers = {
 
     return personas
   },
-  getPersonaFusionById: async (_root, { persona1Id, persona2Id, dlc }) => {
+  personaFusionById: async (_root, { persona1Id, persona2Id, dlc }) => {
     if (!persona1Id || !persona2Id || dlc === undefined) {
       throw new GraphQLError('Missing parameters', {
         extensions: {
@@ -103,7 +134,7 @@ const personaQueries: QueryResolvers = {
 
     return persona
   },
-  getPersonaFusionByName: async (_root, { persona1Name, persona2Name, dlc }) => {
+  personaFusionByName: async (_root, { persona1Name, persona2Name, dlc }) => {
     if (!persona1Name || !persona2Name || dlc === undefined) {
       throw new GraphQLError('Missing parameters', {
         extensions: {
@@ -140,7 +171,7 @@ const personaQueries: QueryResolvers = {
 
     return persona
   },
-  getPersonaRecipesById: async (_root, { personaId, dlc }) => {
+  personaRecipesById: async (_root, { personaId, dlc }) => {
     if(!personaId || dlc === undefined) {
       throw new GraphQLError('Missing parameters', {
         extensions: {
@@ -179,6 +210,8 @@ const personaQueries: QueryResolvers = {
       dlc
     )
     personaPairs = [...personaPairs, ...treasureRecipes]
+
+    console.log(personaPairs.length)
 
     if(!isPersonaRecipeArray(personaPairs)) {
       throw new GraphQLError('Result is not of type PersonaRecipeArray', {

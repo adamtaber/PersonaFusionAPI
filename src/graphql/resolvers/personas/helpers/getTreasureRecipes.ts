@@ -5,7 +5,7 @@ import { basicPersonasByArcanaQuery, dlcList, getPersonasQuery, treasuresQuery }
 import { getFullPersonaInfo } from "./basicHelpers"
 
 export const getTreasureRecipes = 
-  async (targetArcana: string, personaId: number, dlc: boolean) => {
+  async (targetArcana: string, personaId: string, dlc: boolean) => {
     const personaPairs = []
 
     const getPersonas = await pool.query(basicPersonasByArcanaQuery, [

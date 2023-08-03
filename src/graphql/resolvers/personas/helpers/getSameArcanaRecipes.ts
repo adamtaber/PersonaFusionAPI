@@ -39,7 +39,7 @@ const getPersonaId = async (
 }
 
 export const getSameArcanaRecipes =
-  async (personaId: number, targetArcana: string, dlc: boolean) => {
+  async (personaId: string, targetArcana: string, dlc: boolean) => {
     const personaPairs = []
 
     const unfilteredPersonas = await getBasicPersonasByArcana(

@@ -35,7 +35,7 @@ type PersonaAffinities {
 }
 
 type Persona {
-  personaId: Int!,
+  personaId: ID!,
   name: String!,
   baseLevel: Int!,
   arcana: String!,
@@ -48,6 +48,7 @@ type Persona {
   affinities: PersonaAffinities!,
   skills: [PersonaSkill!]!,
   trait: Trait,
+  treasureTraits: [Trait],
   background: String!,
   fusionQuote: String,
   normalItem: Item,
@@ -61,24 +62,24 @@ type Query {
     dlc: Boolean!
   ): [Persona!]!
   personaById(
-    personaId: Int!
+    personaId: ID!
   ): Persona
   personaByName(
     name: String!,
     dlc: Boolean!
   ): [Persona]!
-  getPersonaFusionById(
-    persona1Id: Int!,
-    persona2Id: Int!,
+  personaFusionById(
+    persona1Id: ID!,
+    persona2Id: ID!,
     dlc: Boolean!
   ): Persona
-  getPersonaFusionByName(
+  personaFusionByName(
     persona1Name: String!,
     persona2Name: String!,
     dlc: Boolean!
   ): Persona
-  getPersonaRecipesById(
-    personaId: Int!,
+  personaRecipesById(
+    personaId: ID!,
     dlc: Boolean!
   ): [PersonaRecipe]!
 }

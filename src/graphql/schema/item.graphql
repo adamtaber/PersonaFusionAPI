@@ -1,13 +1,14 @@
 type Item {
-  itemId: Int!,
+  itemId: ID!,
   name: String!,
+  type: String!,
   description: String!
 }
 
 type Query {
   allItems: [Item!]!
   itemById(
-    itemId: Int!
+    itemId: ID!
   ): Item
   itemByName(
     name: String!

@@ -13,6 +13,8 @@ const itemQueries: QueryResolvers = {
     const allItemsQuery = await pool.query(query)
     const items = humps.camelizeKeys(allItemsQuery.rows)
 
+    console.log(items)
+
     if(!Array.isArray(items) || !isItemArray(items)) {
       throw new GraphQLError('Query result is not an array', {
         extensions: {

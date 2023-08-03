@@ -1,5 +1,5 @@
 type Trait {
-  traitId: Int!,
+  traitId: ID!,
   name: String!,
   description: String!,
   category: String!

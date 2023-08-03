@@ -5,8 +5,8 @@ import { GraphQLError } from "graphql"
 import { getPersonasQuery } from "./personaQueries"
 
 export const checkForSpecial = async (
-  persona1Id: number, 
-  persona2Id: number
+  persona1Id: string, 
+  persona2Id: string
 ) => {
   const specialPersonaQuery = `
     SELECT persona_id

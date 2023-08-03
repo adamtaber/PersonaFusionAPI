@@ -19,8 +19,9 @@ export type Scalars = {
 export type Item = {
   __typename?: 'Item';
   description: Scalars['String']['output'];
-  itemId: Scalars['Int']['output'];
+  itemId: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  type: Scalars['String']['output'];
 };
 
 export type Persona = {
@@ -37,13 +38,14 @@ export type Persona = {
   name: Scalars['String']['output'];
   normalItem?: Maybe<Item>;
   normalSkillCard?: Maybe<Skill>;
-  personaId: Scalars['Int']['output'];
+  personaId: Scalars['ID']['output'];
   skills: Array<PersonaSkill>;
   special: Scalars['Boolean']['output'];
   stats: PersonaStats;
   trait?: Maybe<Trait>;
   treasure: Scalars['Boolean']['output'];
   treasureMods?: Maybe<Array<Maybe<TreasureMod>>>;
+  treasureTraits?: Maybe<Array<Maybe<Trait>>>;
 };
 
 export type PersonaAffinities = {
@@ -87,13 +89,13 @@ export type Query = {
   allPersonas: Array<Persona>;
   allSkills: Array<Maybe<Skill>>;
   allTraits: Array<Trait>;
-  getPersonaFusionById?: Maybe<Persona>;
-  getPersonaFusionByName?: Maybe<Persona>;
-  getPersonaRecipesById: Array<Maybe<PersonaRecipe>>;
   itemById?: Maybe<Item>;
   itemByName: Array<Maybe<Item>>;
   personaById?: Maybe<Persona>;
   personaByName: Array<Maybe<Persona>>;
+  personaFusionById?: Maybe<Persona>;
+  personaFusionByName?: Maybe<Persona>;
+  personaRecipesById: Array<Maybe<PersonaRecipe>>;
   skillById?: Maybe<Skill>;
   skillByName: Array<Maybe<Skill>>;
 };
@@ -104,28 +106,8 @@ export type QueryAllPersonasArgs = {
 };
 
 
-export type QueryGetPersonaFusionByIdArgs = {
-  dlc: Scalars['Boolean']['input'];
-  persona1Id: Scalars['Int']['input'];
-  persona2Id: Scalars['Int']['input'];
-};
-
-
-export type QueryGetPersonaFusionByNameArgs = {
-  dlc: Scalars['Boolean']['input'];
-  persona1Name: Scalars['String']['input'];
-  persona2Name: Scalars['String']['input'];
-};
-
-
-export type QueryGetPersonaRecipesByIdArgs = {
-  dlc: Scalars['Boolean']['input'];
-  personaId: Scalars['Int']['input'];
-};
-
-
 export type QueryItemByIdArgs = {
-  itemId: Scalars['Int']['input'];
+  itemId: Scalars['ID']['input'];
 };
 
 
@@ -135,13 +117,33 @@ export type QueryItemByNameArgs = {
 
 
 export type QueryPersonaByIdArgs = {
-  personaId: Scalars['Int']['input'];
+  personaId: Scalars['ID']['input'];
 };
 
 
 export type QueryPersonaByNameArgs = {
   dlc: Scalars['Boolean']['input'];
   name: Scalars['String']['input'];
+};
+
+
+export type QueryPersonaFusionByIdArgs = {
+  dlc: Scalars['Boolean']['input'];
+  persona1Id: Scalars['ID']['input'];
+  persona2Id: Scalars['ID']['input'];
+};
+
+
+export type QueryPersonaFusionByNameArgs = {
+  dlc: Scalars['Boolean']['input'];
+  persona1Name: Scalars['String']['input'];
+  persona2Name: Scalars['String']['input'];
+};
+
+
+export type QueryPersonaRecipesByIdArgs = {
+  dlc: Scalars['Boolean']['input'];
+  personaId: Scalars['ID']['input'];
 };
 
 
@@ -159,7 +161,7 @@ export type Skill = {
   cost?: Maybe<Scalars['Int']['output']>;
   effect: Scalars['String']['output'];
   name: Scalars['String']['output'];
-  skillId: Scalars['Int']['output'];
+  skillId: Scalars['ID']['output'];
   type: Scalars['String']['output'];
 };
 
@@ -168,7 +170,7 @@ export type Trait = {
   category: Scalars['String']['output'];
   description: Scalars['String']['output'];
   name: Scalars['String']['output'];
-  traitId: Scalars['Int']['output'];
+  traitId: Scalars['ID']['output'];
 };
 
 export type TreasureMod = {
@@ -250,6 +252,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Item: ResolverTypeWrapper<Item>;
   Persona: ResolverTypeWrapper<Persona>;
@@ -267,6 +270,7 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
+  ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   Item: Item;
   Persona: Persona;
@@ -283,8 +287,9 @@ export type ResolversParentTypes = ResolversObject<{
 
 export type ItemResolvers<ContextType = any, ParentType extends ResolversParentTypes['Item'] = ResolversParentTypes['Item']> = ResolversObject<{
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  itemId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  itemId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -301,13 +306,14 @@ export type PersonaResolvers<ContextType = any, ParentType extends ResolversPare
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   normalItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType>;
   normalSkillCard?: Resolver<Maybe<ResolversTypes['Skill']>, ParentType, ContextType>;
-  personaId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  personaId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   skills?: Resolver<Array<ResolversTypes['PersonaSkill']>, ParentType, ContextType>;
   special?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   stats?: Resolver<ResolversTypes['PersonaStats'], ParentType, ContextType>;
   trait?: Resolver<Maybe<ResolversTypes['Trait']>, ParentType, ContextType>;
   treasure?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   treasureMods?: Resolver<Maybe<Array<Maybe<ResolversTypes['TreasureMod']>>>, ParentType, ContextType>;
+  treasureTraits?: Resolver<Maybe<Array<Maybe<ResolversTypes['Trait']>>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -351,13 +357,13 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   allPersonas?: Resolver<Array<ResolversTypes['Persona']>, ParentType, ContextType, RequireFields<QueryAllPersonasArgs, 'dlc'>>;
   allSkills?: Resolver<Array<Maybe<ResolversTypes['Skill']>>, ParentType, ContextType>;
   allTraits?: Resolver<Array<ResolversTypes['Trait']>, ParentType, ContextType>;
-  getPersonaFusionById?: Resolver<Maybe<ResolversTypes['Persona']>, ParentType, ContextType, RequireFields<QueryGetPersonaFusionByIdArgs, 'dlc' | 'persona1Id' | 'persona2Id'>>;
-  getPersonaFusionByName?: Resolver<Maybe<ResolversTypes['Persona']>, ParentType, ContextType, RequireFields<QueryGetPersonaFusionByNameArgs, 'dlc' | 'persona1Name' | 'persona2Name'>>;
-  getPersonaRecipesById?: Resolver<Array<Maybe<ResolversTypes['PersonaRecipe']>>, ParentType, ContextType, RequireFields<QueryGetPersonaRecipesByIdArgs, 'dlc' | 'personaId'>>;
   itemById?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<QueryItemByIdArgs, 'itemId'>>;
   itemByName?: Resolver<Array<Maybe<ResolversTypes['Item']>>, ParentType, ContextType, RequireFields<QueryItemByNameArgs, 'name'>>;
   personaById?: Resolver<Maybe<ResolversTypes['Persona']>, ParentType, ContextType, RequireFields<QueryPersonaByIdArgs, 'personaId'>>;
   personaByName?: Resolver<Array<Maybe<ResolversTypes['Persona']>>, ParentType, ContextType, RequireFields<QueryPersonaByNameArgs, 'dlc' | 'name'>>;
+  personaFusionById?: Resolver<Maybe<ResolversTypes['Persona']>, ParentType, ContextType, RequireFields<QueryPersonaFusionByIdArgs, 'dlc' | 'persona1Id' | 'persona2Id'>>;
+  personaFusionByName?: Resolver<Maybe<ResolversTypes['Persona']>, ParentType, ContextType, RequireFields<QueryPersonaFusionByNameArgs, 'dlc' | 'persona1Name' | 'persona2Name'>>;
+  personaRecipesById?: Resolver<Array<Maybe<ResolversTypes['PersonaRecipe']>>, ParentType, ContextType, RequireFields<QueryPersonaRecipesByIdArgs, 'dlc' | 'personaId'>>;
   skillById?: Resolver<Maybe<ResolversTypes['Skill']>, ParentType, ContextType, RequireFields<QuerySkillByIdArgs, 'skillId'>>;
   skillByName?: Resolver<Array<Maybe<ResolversTypes['Skill']>>, ParentType, ContextType, RequireFields<QuerySkillByNameArgs, 'name'>>;
 }>;
@@ -366,7 +372,7 @@ export type SkillResolvers<ContextType = any, ParentType extends ResolversParent
   cost?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   effect?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  skillId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  skillId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -375,7 +381,7 @@ export type TraitResolvers<ContextType = any, ParentType extends ResolversParent
   category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  traitId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  traitId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 

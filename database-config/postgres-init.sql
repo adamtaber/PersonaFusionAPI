@@ -1,3 +1,5 @@
+CREATE EXTENSION unaccent;
+
 CREATE TABLE items (
   item_id SERIAL NOT NULL PRIMARY KEY,
   type TEXT NOT NULL,
@@ -41,6 +43,14 @@ CREATE TABLE personas (
   FOREIGN KEY (fusion_alarm_item_id) REFERENCES items (item_id),
   FOREIGN KEY (normal_skillcard_id) REFERENCES skills (skill_id),
   FOREIGN KEY (fusion_alarm_skillcard_id) REFERENCES skills (skill_id)
+);
+
+CREATE TABLE treasure_traits (
+  treasure_trait_id SERIAL NOT NULL PRIMARY KEY,
+  persona_id INTEGER NOT NULL,
+  trait_id INTEGER NOT NULL,
+  FOREIGN KEY (persona_id) REFERENCES personas (persona_id),
+  FOREIGN KEY (trait_id) REFERENCES traits (trait_id)
 );
 
 CREATE TABLE persona_affinities (

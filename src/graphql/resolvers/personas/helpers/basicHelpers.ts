@@ -5,7 +5,7 @@ import { basicPersonaQuery, basicPersonasByArcanaQuery, getPersonasQuery, treasu
 import humps from "humps"
 import { Persona } from "../../graphql-types"
 
-export const getBasicPersona = async (personaId: number) => {
+export const getBasicPersona = async (personaId: string) => {
   const getPersona = await pool.query(basicPersonaQuery, [personaId])
   const persona = humps.camelizeKeys(getPersona.rows[0])
 
@@ -43,7 +43,7 @@ export const getBasicPersonasByArcana = async (
 
 export const getTreasureModifier = async (
   arcana: string, 
-  treasureId: number
+  treasureId: string
 ) => {
   const getModifier = await pool.query(treasureModifierQuery(
     arcana, 

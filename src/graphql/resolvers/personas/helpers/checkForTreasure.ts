@@ -5,7 +5,7 @@ import { getPersonasQuery } from "./personaQueries"
 import { isBasicPersona, isPersona } from "../types"
 import { findNewTreasureFusionId, getBasicPersonasByArcana, getTreasureModifier } from "./basicHelpers"
 
-const treasureFusion = async (newPersonaId: number) => {
+const treasureFusion = async (newPersonaId: string) => {
   const whereQuery = `
     WHERE p.persona_id = ${newPersonaId}
   `

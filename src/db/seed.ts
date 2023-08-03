@@ -5,13 +5,17 @@ import { p5rSpecials } from "../../seed-data/p5rSpecials"
 import { p5rTraits } from "../../seed-data/p5rTraits"
 import { itemQueries } from "../graphql/resolvers/items"
 import { pool } from "./config"
-import { findItemQuery, findSkillQuery, findTraitQuery, seedItemsQuery, seedPersonaAffinitiesQuery, seedPersonaSkillsQuery, seedPersonaStatsQuery, seedPersonasQuery, seedSkillsQuery, seedTraitsQuery } from "./seedQueries"
+import { findItemQuery, findSkillQuery, findTraitQuery, seedItemsQuery, seedPersonaAffinitiesQuery, seedPersonaSkillsQuery, seedPersonaStatsQuery, seedPersonasQuery, seedSkillsQuery, seedTraitsQuery, seedTreasureTraitsQuery } from "./seedQueries"
 import { treasureCombos, treasureDemons } from "./treasureCombos"
 
 export const seedSkills = async () => {
   const skillArr = Object.entries(p5rSkills)
 
-  skillArr.forEach(async (skill) => {
+  for (let i = 0; i < skillArr.length; i++) {
+    const skill = skillArr[i]
+
+    if (skill[1].element === "trait") continue
+
     const name = skill[0]
     const type = skill[1].element
     const effect = skill[1].effect
@@ -19,26 +23,30 @@ export const seedSkills = async () => {
     const values = [type, name, effect, cost]
 
     await pool.query(seedSkillsQuery, values)
-  })
+  }
 }
 
 export const seedItems = async () => {
   const itemArr = Object.entries(p5rItems)
 
-  itemArr.forEach(async (item) => {
+  for (let i = 0; i < itemArr.length; i++) {
+    const item = itemArr[i]
+
     const name = item[0]
     const type = item[1].type
     const description = item[1].description
     const values = [type, name, description]
 
     await pool.query(seedItemsQuery, values)
-  })
+  }
 }
 
 export const seedTraits = async () => {
   const traitArr = Object.entries(p5rTraits)
 
-  traitArr.forEach(async (trait) => {
+  for (let i = 0; i < traitArr.length; i++) {
+    const trait = traitArr[i]
+
     const name = trait[0]
     const description = trait[1].description
     const category = trait[1].category
@@ -46,7 +54,7 @@ export const seedTraits = async () => {
     const values = [name, description, category]
 
     await pool.query(seedTraitsQuery, values)
-  })
+  }
 }
 
 const seedPersonaSkills = async (
@@ -96,6 +104,16 @@ const seedPersonaAffinities = async (
   ]
 
   await pool.query(seedPersonaAffinitiesQuery, values)
+}
+
+const seedTreasureTraits = async (treasureTraits: string[], personaId: number) => {
+  for (let i = 0; i < treasureTraits.length; i++ ) {
+    const trait = treasureTraits[i]
+    const traitQuery = await pool.query(findTraitQuery, [trait])
+    const traitId =  traitQuery?.rows[0].trait_id ?? null
+    
+    await pool.query(seedTreasureTraitsQuery, [personaId, traitId])
+  }
 }
 
 export const seedPersonas = async () => {
@@ -149,15 +167,9 @@ export const seedPersonas = async () => {
     seedPersonaSkills(skillArr, personaId)
     seedPersonaStats(persona[1].stats, personaId)
     seedPersonaAffinities(persona[1].elems, personaId)
-
-    // for (let i = 0; i < skillArr.length; i++) {
-    //   const skill = skillArr[i]
-    //   const skillIdQuery = await pool.query(findSkillQuery, [skill[0]])
-    //   const skillId = skillIdQuery.rows[0].skill_id
-    //   const skillLvl = skill[1]
-    //   const values = [skillLvl, personaId, skillId]
-    //   await pool.query(seedPersonaSkillsQuery, values)
-    // }
+    if (persona[1].treasureTraits) {
+      seedTreasureTraits(persona[1].treasureTraits, personaId)
+    }
   }
 }
 

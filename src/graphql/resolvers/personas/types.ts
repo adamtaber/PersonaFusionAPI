@@ -33,7 +33,7 @@ export const isPersonaRecipeArray = (input: any): input is Array<PersonaRecipe> 
 }
 
 export interface BasicPersona {
-  personaId: number,
+  personaId: string,
   name: string,
   baseLevel: number,
   arcana: string,

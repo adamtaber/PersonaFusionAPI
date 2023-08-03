@@ -5,7 +5,7 @@ import { getBasicPersonasByArcana, getFullPersonaInfo } from "./basicHelpers"
 
 export const getDiffArcanaRecipes = async (
   arcanaRecipes: Array<ArcanaCombo>, 
-  personaId: number, 
+  personaId: string, 
   targetArcana: string, 
   dlc: boolean
 ) => {
