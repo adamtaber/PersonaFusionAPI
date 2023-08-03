@@ -80,7 +80,7 @@ export const getSameArcanaRecipes =
           k
         )
 
-        if (fusedPersonaId === personaId) {
+        if (fusedPersonaId === Number(personaId)) {
           const personaPair = await getFullPersonaInfo(
             personasA,
             personasB,

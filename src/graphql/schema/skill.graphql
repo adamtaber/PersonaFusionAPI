@@ -9,7 +9,7 @@ type Skill {
 type Query {
   allSkills: [Skill]!
   skillById(
-    skillId: Int!
+    skillId: ID!
   ): Skill
   skillByName(
     name: String!

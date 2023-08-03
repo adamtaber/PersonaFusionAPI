@@ -28,7 +28,7 @@ export const getTreasureRecipes =
         if (newIndex < 0 || newIndex > personas.length) continue
         const newPersonaId = personas[newIndex]?.personaId
 
-        if (newPersonaId === personaId) {
+        if (newPersonaId === Number(personaId)) {
           const personaPair = await getFullPersonaInfo(
             personas,
             treasures,

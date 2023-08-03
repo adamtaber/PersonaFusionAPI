@@ -48,7 +48,8 @@ export const getDiffArcanaRecipes = async (
         ])
         const fusedPersonaId = getFusionQuery.rows[0]?.persona_id
 
-        if (fusedPersonaId === personaId) {
+        if (fusedPersonaId === Number(personaId)) {
+          console.log('testtesttest')
           const personaPair = await getFullPersonaInfo(
             personasA, 
             personasB, 

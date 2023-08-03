@@ -13,26 +13,6 @@ import { getFusionFromIds } from "./helpers/getFusionFromIds";
 
 const personaQueries: QueryResolvers = {
   allPersonas: async (_root, { dlc }) => {
-  //   const query = `
-  //   SELECT p.*, ps.skills, tr.treasure_traits
-  //   FROM personas p
-  //   LEFT JOIN (
-  //     SELECT persona_id, array_agg(json_build_object(
-  //       'level', level
-  //     )) AS skills
-  //     FROM persona_skills
-  //     GROUP BY 1
-  //   ) ps ON ps.persona_id = p.persona_id
-  //   LEFT JOIN (
-  //     SELECT persona_id, array_agg(json_build_object(
-  //       'trait_id', trait_id
-  //     )) AS treasure_traits
-  //     FROM treasure_traits
-  //     GROUP BY 1
-  //   ) tr ON tr.persona_id = p.persona_id
-  //   WHERE treasure = true
-  // `
-
     const orderByQuery = 'ORDER BY p.persona_id'
     const whereQuery = `WHERE (dlc = ${dlc} OR dlc = false)`
     const query = getPersonasQuery(whereQuery, orderByQuery, '')
@@ -181,6 +161,7 @@ const personaQueries: QueryResolvers = {
     }
 
     const targetPersona = await getBasicPersona(personaId)
+
     const arcanaRecipes = arcanaCombos.filter((combo) => {
       return (
         combo.result === targetPersona.arcana &&
@@ -196,6 +177,8 @@ const personaQueries: QueryResolvers = {
       dlc
     )
     personaPairs = [...personaPairs, ...diffArcanaRecipes]
+
+    console.log(personaPairs)
 
     const sameArcanaRecipes = await getSameArcanaRecipes(
       personaId, 

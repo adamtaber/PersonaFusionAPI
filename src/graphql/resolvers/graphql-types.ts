@@ -148,7 +148,7 @@ export type QueryPersonaRecipesByIdArgs = {
 
 
 export type QuerySkillByIdArgs = {
-  skillId: Scalars['Int']['input'];
+  skillId: Scalars['ID']['input'];
 };
 
 
